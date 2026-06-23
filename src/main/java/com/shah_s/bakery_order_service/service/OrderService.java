@@ -2,6 +2,7 @@ package com.shah_s.bakery_order_service.service;
 
 import com.shah_s.bakery_order_service.client.ProductServiceClient;
 import com.shah_s.bakery_order_service.client.PaymentServiceClient;
+import com.shah_s.bakery_order_service.client.NotificationServiceClient;
 import com.shah_s.bakery_order_service.dto.*;
 import com.shah_s.bakery_order_service.entity.Order;
 import com.shah_s.bakery_order_service.entity.OrderItem;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.shah_s.bakery_order_service.exception.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,8 @@ public class OrderService {
     final private ProductServiceClient productServiceClient;
 
     final private PaymentServiceClient paymentServiceClient;
+    
+    final private NotificationServiceClient notificationServiceClient;
 
     @Value("${order.tax.rate:0.08}")
     private BigDecimal taxRate;
@@ -49,10 +53,11 @@ public class OrderService {
     @Value("${order.limits.max-order-value:500.00}")
     private BigDecimal maxOrderValue;
 
-    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient) {
+    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient, NotificationServiceClient notificationServiceClient) {
         this.orderRepository = orderRepository;
         this.productServiceClient = productServiceClient;
         this.paymentServiceClient = paymentServiceClient;
+        this.notificationServiceClient = notificationServiceClient;
     }
 
     // Create new order
@@ -134,6 +139,22 @@ public class OrderService {
 
             logger.info("Order created successfully: {} (Order Number: {})",
                     savedOrder.getId(), savedOrder.getOrderNumber());
+                    
+            // Send order creation notification
+            try {
+                Map<String, Object> notificationReq = new java.util.HashMap<>();
+                notificationReq.put("type", "EMAIL");
+                notificationReq.put("recipientEmail", savedOrder.getCustomerEmail());
+                notificationReq.put("recipientName", savedOrder.getCustomerName());
+                notificationReq.put("title", "Order Confirmation: " + savedOrder.getOrderNumber());
+                notificationReq.put("subject", "Order Confirmation: " + savedOrder.getOrderNumber());
+                notificationReq.put("content", "Your order has been received and is being processed. Total: $" + savedOrder.getTotalAmount());
+                notificationReq.put("source", "ORDER_SERVICE");
+                notificationReq.put("userId", savedOrder.getUserId());
+                notificationServiceClient.sendNotification(notificationReq);
+            } catch (Exception ex) {
+                logger.error("Failed to send order creation notification: {}", ex.getMessage());
+            }
 
             return OrderResponse.from(savedOrder);
 
@@ -222,6 +243,22 @@ public class OrderService {
         Order updatedOrder = orderRepository.save(order);
         logger.info("Order status updated successfully: {} from {} to {}",
                 orderId, oldStatus, request.getStatus());
+                
+        // Send status update notification
+        try {
+            Map<String, Object> notificationReq = new java.util.HashMap<>();
+            notificationReq.put("type", "EMAIL");
+            notificationReq.put("recipientEmail", updatedOrder.getCustomerEmail());
+            notificationReq.put("recipientName", updatedOrder.getCustomerName());
+            notificationReq.put("title", "Order Status Update: " + updatedOrder.getOrderNumber());
+            notificationReq.put("subject", "Order Status Update: " + updatedOrder.getOrderNumber());
+            notificationReq.put("content", "Your order status is now: " + request.getStatus());
+            notificationReq.put("source", "ORDER_SERVICE");
+            notificationReq.put("userId", updatedOrder.getUserId());
+            notificationServiceClient.sendNotification(notificationReq);
+        } catch (Exception ex) {
+            logger.error("Failed to send order status update notification: {}", ex.getMessage());
+        }
 
         return OrderResponse.from(updatedOrder);
     }
@@ -365,7 +402,7 @@ public class OrderService {
         try {
             productResponse = productServiceClient.getProductById(itemRequest.getProductId());
         } catch (Exception e) {
-            throw new OrderServiceException("Product not found: " + itemRequest.getProductId());
+            throw new ProductNotFoundException("Product not found: " + itemRequest.getProductId());
         }
 
         // Check stock availability
@@ -375,7 +412,7 @@ public class OrderService {
         Boolean sufficient = (Boolean) stockResponse.get("sufficient");
         if (!sufficient) {
             String productName = (String) productResponse.get("name");
-            throw new OrderServiceException("Insufficient stock for product: " + productName);
+            throw new InsufficientStockException("Insufficient stock for product: " + productName);
         }
 
         // Create order item
@@ -481,7 +518,7 @@ public class OrderService {
         };
 
         if (!isValidTransition) {
-            throw new OrderServiceException("Invalid status transition from " + currentStatus + " to " + newStatus);
+            throw new InvalidOrderStatusException("Invalid status transition from " + currentStatus + " to " + newStatus);
         }
     }
 
