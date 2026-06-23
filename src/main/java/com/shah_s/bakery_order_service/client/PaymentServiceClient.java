@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
 
-@FeignClient(name = "payment-service", path = "/api/payments")
+@FeignClient(name = "bakery-payment-service", path = "/api/payments")
 public interface PaymentServiceClient {
 
     @PostMapping

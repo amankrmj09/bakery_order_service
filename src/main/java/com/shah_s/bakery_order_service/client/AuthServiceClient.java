@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Map;
 
-@FeignClient(name = "auth-service", path = "/api/auth")
+@FeignClient(name = "bakery-auth-service", path = "/api/auth")
 public interface AuthServiceClient {
 
     @PostMapping("/validate-token")
