@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,49 +18,71 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
+    @EntityGraph(attributePaths = {"orderItems"})
+    List<Order> findAll();
+
+    @EntityGraph(attributePaths = {"orderItems"})
+    Page<Order> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"orderItems"})
+    Optional<Order> findById(UUID id);
+
     // Find order by order number
+    @EntityGraph(attributePaths = {"orderItems"})
     Optional<Order> findByOrderNumber(String orderNumber);
 
     // Check if order number exists
     boolean existsByOrderNumber(String orderNumber);
 
     // Find orders by user ID
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
     // Find orders by user ID with pagination
+    @EntityGraph(attributePaths = {"orderItems"})
     Page<Order> findByUserId(UUID userId, Pageable pageable);
 
     // Find orders by status
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByStatusOrderByCreatedAtDesc(Order.OrderStatus status);
 
     // Find orders by status with pagination
+    @EntityGraph(attributePaths = {"orderItems"})
     Page<Order> findByStatus(Order.OrderStatus status, Pageable pageable);
 
     // Find orders by multiple statuses
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o WHERE o.status IN :statuses ORDER BY o.createdAt DESC")
     List<Order> findByStatusIn(@Param("statuses") List<Order.OrderStatus> statuses);
 
     // Find orders by delivery type
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByDeliveryTypeOrderByCreatedAtDesc(Order.DeliveryType deliveryType);
 
     // Find orders by date range
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime startDate, LocalDateTime endDate);
 
     // Find orders by date range with pagination
+    @EntityGraph(attributePaths = {"orderItems"})
     Page<Order> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     // Find orders by user and status
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByUserIdAndStatusOrderByCreatedAtDesc(UUID userId, Order.OrderStatus status);
 
     // Find orders by user and multiple statuses
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o WHERE o.userId = :userId AND o.status IN :statuses ORDER BY o.createdAt DESC")
     List<Order> findByUserIdAndStatusIn(@Param("userId") UUID userId, @Param("statuses") List<Order.OrderStatus> statuses);
 
     // Find recent orders (last N days)
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o WHERE o.createdAt >= :sinceDate ORDER BY o.createdAt DESC")
     List<Order> findRecentOrders(@Param("sinceDate") LocalDateTime sinceDate);
 
     // Find orders pending confirmation (older than X minutes)
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o " +
             "WHERE o.status = 'PENDING' " +
             "AND o.createdAt <= :cutoffTime " +
@@ -67,6 +90,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findPendingOrdersOlderThan(@Param("cutoffTime") LocalDateTime cutoffTime);
 
     // Find orders ready for delivery/pickup
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o " +
             "WHERE o.status = 'READY' " +
             "AND o.estimatedReadyTime <= :currentTime " +
@@ -74,9 +98,11 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findReadyOrders(@Param("currentTime") LocalDateTime currentTime);
 
     // Find orders by total amount range
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByTotalAmountBetweenOrderByCreatedAtDesc(BigDecimal minAmount, BigDecimal maxAmount);
 
     // Search orders by customer name or email
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o " +
             "WHERE LOWER(o.customerName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(o.customerEmail) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
@@ -146,6 +172,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Object[]> getAveragePreparationTimeByDeliveryType();
 
     // Find orders that need preparation time update
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o " +
             "WHERE o.status IN ('CONFIRMED', 'PREPARING') " +
             "AND o.estimatedReadyTime IS NULL " +
@@ -153,6 +180,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findOrdersNeedingPreparationTimeUpdate();
 
     // Find overdue orders (past estimated ready time)
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o " +
             "WHERE o.status IN ('CONFIRMED', 'PREPARING') " +
             "AND o.estimatedReadyTime < :currentTime " +
@@ -160,15 +188,18 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findOverdueOrders(@Param("currentTime") LocalDateTime currentTime);
 
     // Find orders by delivery date range
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByDeliveryDateBetweenOrderByDeliveryDateAsc(LocalDateTime startDate, LocalDateTime endDate);
 
     // Find orders with discount
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o " +
             "WHERE o.discountAmount > 0 " +
             "ORDER BY o.createdAt DESC")
     List<Order> findOrdersWithDiscount();
 
     // Find orders by discount code
+    @EntityGraph(attributePaths = {"orderItems"})
     List<Order> findByDiscountCodeOrderByCreatedAtDesc(String discountCode);
 
     // Get revenue statistics
@@ -187,6 +218,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
                                   @Param("endDate") LocalDateTime endDate);
 
     // ✅ FIXED: Simplified advanced search without Payment entity
+    @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o " +
             "WHERE (:userId IS NULL OR o.userId = :userId) " +
             "AND (:status IS NULL OR o.status = :status) " +

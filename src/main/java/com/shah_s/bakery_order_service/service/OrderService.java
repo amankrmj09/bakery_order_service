@@ -3,6 +3,7 @@ package com.shah_s.bakery_order_service.service;
 import com.shah_s.bakery_order_service.client.ProductServiceClient;
 import com.shah_s.bakery_order_service.client.PaymentServiceClient;
 import com.shah_s.bakery_order_service.client.NotificationServiceClient;
+import com.shah_s.bakery_order_service.client.InternalStatsClient;
 import com.shah_s.bakery_order_service.dto.*;
 import com.shah_s.bakery_order_service.entity.Order;
 import com.shah_s.bakery_order_service.entity.OrderItem;
@@ -40,6 +41,8 @@ public class OrderService {
     final private PaymentServiceClient paymentServiceClient;
     
     final private NotificationServiceClient notificationServiceClient;
+    
+    final private InternalStatsClient internalStatsClient;
 
     @Value("${order.tax.rate:0.08}")
     private BigDecimal taxRate;
@@ -53,11 +56,12 @@ public class OrderService {
     @Value("${order.limits.max-order-value:500.00}")
     private BigDecimal maxOrderValue;
 
-    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient, NotificationServiceClient notificationServiceClient) {
+    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient, NotificationServiceClient notificationServiceClient, InternalStatsClient internalStatsClient) {
         this.orderRepository = orderRepository;
         this.productServiceClient = productServiceClient;
         this.paymentServiceClient = paymentServiceClient;
         this.notificationServiceClient = notificationServiceClient;
+        this.internalStatsClient = internalStatsClient;
     }
 
     // Create new order
@@ -243,6 +247,23 @@ public class OrderService {
         Order updatedOrder = orderRepository.save(order);
         logger.info("Order status updated successfully: {} from {} to {}",
                 orderId, oldStatus, request.getStatus());
+                
+        // Central Dashboard Statistics Updates
+        try {
+            if (oldStatus != Order.OrderStatus.CONFIRMED && request.getStatus() == Order.OrderStatus.CONFIRMED) {
+                internalStatsClient.incrementOrders();
+            } else if ((oldStatus != Order.OrderStatus.DELIVERED && oldStatus != Order.OrderStatus.CANCELLED) && 
+                       (request.getStatus() == Order.OrderStatus.DELIVERED || request.getStatus() == Order.OrderStatus.CANCELLED)) {
+                // Wait, if it wasn't confirmed yet and is cancelled, do we decrement? 
+                // Only if it was previously confirmed, preparing, ready, out for delivery
+                if (oldStatus == Order.OrderStatus.CONFIRMED || oldStatus == Order.OrderStatus.PREPARING || 
+                    oldStatus == Order.OrderStatus.READY || oldStatus == Order.OrderStatus.OUT_FOR_DELIVERY) {
+                    internalStatsClient.decrementOrders();
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Failed to update central dashboard statistics for order {}: {}", orderId, ex.getMessage());
+        }
                 
         // Send status update notification
         try {
@@ -507,15 +528,15 @@ public class OrderService {
     }
 
     private void validateStatusTransition(Order.OrderStatus currentStatus, Order.OrderStatus newStatus) {
-        // Define valid status transitions
-        boolean isValidTransition = switch (currentStatus) {
-            case PENDING -> newStatus == Order.OrderStatus.CONFIRMED || newStatus == Order.OrderStatus.CANCELLED;
-            case CONFIRMED -> newStatus == Order.OrderStatus.PREPARING || newStatus == Order.OrderStatus.CANCELLED;
-            case PREPARING -> newStatus == Order.OrderStatus.READY;
-            case READY -> newStatus == Order.OrderStatus.OUT_FOR_DELIVERY || newStatus == Order.OrderStatus.DELIVERED;
-            case OUT_FOR_DELIVERY -> newStatus == Order.OrderStatus.DELIVERED;
-            case DELIVERED, CANCELLED -> false; // Terminal states
-        };
+        boolean isValidTransition = false;
+        if (currentStatus == Order.OrderStatus.DELIVERED || currentStatus == Order.OrderStatus.CANCELLED) {
+            isValidTransition = false; // Terminal states
+        } else if (newStatus == Order.OrderStatus.CANCELLED) {
+            isValidTransition = true; // Can cancel anytime before delivery
+        } else {
+            // Allow skipping forward (e.g. CONFIRMED directly to DELIVERED)
+            isValidTransition = newStatus.ordinal() > currentStatus.ordinal();
+        }
 
         if (!isValidTransition) {
             throw new InvalidOrderStatusException("Invalid status transition from " + currentStatus + " to " + newStatus);
@@ -534,7 +555,14 @@ public class OrderService {
             }
             case DELIVERED -> {
                 order.setCompletedAt(now);
-                // ✅ REMOVED: Payment completion (handled by Payment Service)
+                // Add revenue to central dashboard statistics
+                try {
+                    Map<String, Object> payload = new java.util.HashMap<>();
+                    payload.put("amount", order.getTotalAmount());
+                    internalStatsClient.addRevenue(payload);
+                } catch (Exception ex) {
+                    logger.error("Failed to update central dashboard revenue for order {}: {}", order.getId(), ex.getMessage());
+                }
             }
             case CANCELLED -> {
                 order.setCancelledAt(now);

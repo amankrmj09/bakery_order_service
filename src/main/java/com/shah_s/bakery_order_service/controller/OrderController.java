@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 public class OrderController {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
