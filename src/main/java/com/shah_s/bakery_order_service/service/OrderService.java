@@ -43,6 +43,8 @@ public class OrderService {
     final private NotificationServiceClient notificationServiceClient;
     
     final private InternalStatsClient internalStatsClient;
+    
+    final private OrderEventPublisher orderEventPublisher;
 
     @Value("${order.tax.rate:0.08}")
     private BigDecimal taxRate;
@@ -56,12 +58,13 @@ public class OrderService {
     @Value("${order.limits.max-order-value:500.00}")
     private BigDecimal maxOrderValue;
 
-    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient, NotificationServiceClient notificationServiceClient, InternalStatsClient internalStatsClient) {
+    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient, NotificationServiceClient notificationServiceClient, InternalStatsClient internalStatsClient, OrderEventPublisher orderEventPublisher) {
         this.orderRepository = orderRepository;
         this.productServiceClient = productServiceClient;
         this.paymentServiceClient = paymentServiceClient;
         this.notificationServiceClient = notificationServiceClient;
         this.internalStatsClient = internalStatsClient;
+        this.orderEventPublisher = orderEventPublisher;
     }
 
     // Create new order
@@ -144,21 +147,23 @@ public class OrderService {
             logger.info("Order created successfully: {} (Order Number: {})",
                     savedOrder.getId(), savedOrder.getOrderNumber());
                     
-            // Send order creation notification
+            // Publish Kafka Event
             try {
-                Map<String, Object> notificationReq = new java.util.HashMap<>();
-                notificationReq.put("type", "EMAIL");
-                notificationReq.put("recipientEmail", savedOrder.getCustomerEmail());
-                notificationReq.put("recipientName", savedOrder.getCustomerName());
-                notificationReq.put("title", "Order Confirmation: " + savedOrder.getOrderNumber());
-                notificationReq.put("subject", "Order Confirmation: " + savedOrder.getOrderNumber());
-                notificationReq.put("content", "Your order has been received and is being processed. Total: $" + savedOrder.getTotalAmount());
-                notificationReq.put("source", "ORDER_SERVICE");
-                notificationReq.put("userId", savedOrder.getUserId());
-                notificationServiceClient.sendNotification(notificationReq);
+                org.devofblue.common.event.OrderEvent event = org.devofblue.common.event.OrderEvent.builder()
+                        .orderId(savedOrder.getId())
+                        .orderNumber(savedOrder.getOrderNumber())
+                        .userId(savedOrder.getUserId())
+                        .customerEmail(savedOrder.getCustomerEmail())
+                        .totalAmount(savedOrder.getTotalAmount())
+                        .status(savedOrder.getStatus().name())
+                        .timestamp(LocalDateTime.now())
+                        .build();
+                orderEventPublisher.publishOrderCreated(event);
             } catch (Exception ex) {
-                logger.error("Failed to send order creation notification: {}", ex.getMessage());
+                logger.error("Failed to publish OrderCreated event for {}: {}", savedOrder.getId(), ex.getMessage());
             }
+                    
+            // Notification will be handled asynchronously via Kafka OrderEvent
 
             return OrderResponse.from(savedOrder);
 
@@ -248,6 +253,22 @@ public class OrderService {
         logger.info("Order status updated successfully: {} from {} to {}",
                 orderId, oldStatus, request.getStatus());
                 
+        // Publish Kafka Event
+        try {
+            org.devofblue.common.event.OrderEvent event = org.devofblue.common.event.OrderEvent.builder()
+                    .orderId(updatedOrder.getId())
+                    .orderNumber(updatedOrder.getOrderNumber())
+                    .userId(updatedOrder.getUserId())
+                    .customerEmail(updatedOrder.getCustomerEmail())
+                    .totalAmount(updatedOrder.getTotalAmount())
+                    .status(updatedOrder.getStatus().name())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            orderEventPublisher.publishOrderStatusUpdated(event);
+        } catch (Exception ex) {
+            logger.error("Failed to publish OrderStatusUpdated event for {}: {}", updatedOrder.getId(), ex.getMessage());
+        }
+                
         // Central Dashboard Statistics Updates
         try {
             if (oldStatus != Order.OrderStatus.CONFIRMED && request.getStatus() == Order.OrderStatus.CONFIRMED) {
@@ -265,21 +286,7 @@ public class OrderService {
             logger.error("Failed to update central dashboard statistics for order {}: {}", orderId, ex.getMessage());
         }
                 
-        // Send status update notification
-        try {
-            Map<String, Object> notificationReq = new java.util.HashMap<>();
-            notificationReq.put("type", "EMAIL");
-            notificationReq.put("recipientEmail", updatedOrder.getCustomerEmail());
-            notificationReq.put("recipientName", updatedOrder.getCustomerName());
-            notificationReq.put("title", "Order Status Update: " + updatedOrder.getOrderNumber());
-            notificationReq.put("subject", "Order Status Update: " + updatedOrder.getOrderNumber());
-            notificationReq.put("content", "Your order status is now: " + request.getStatus());
-            notificationReq.put("source", "ORDER_SERVICE");
-            notificationReq.put("userId", updatedOrder.getUserId());
-            notificationServiceClient.sendNotification(notificationReq);
-        } catch (Exception ex) {
-            logger.error("Failed to send order status update notification: {}", ex.getMessage());
-        }
+        // Notification will be handled asynchronously via Kafka OrderEvent
 
         return OrderResponse.from(updatedOrder);
     }
@@ -318,6 +325,22 @@ public class OrderService {
 
         Order cancelledOrder = orderRepository.save(order);
         logger.info("Order cancelled successfully: {}", orderId);
+        
+        // Publish Kafka Event
+        try {
+            org.devofblue.common.event.OrderEvent event = org.devofblue.common.event.OrderEvent.builder()
+                    .orderId(cancelledOrder.getId())
+                    .orderNumber(cancelledOrder.getOrderNumber())
+                    .userId(cancelledOrder.getUserId())
+                    .customerEmail(cancelledOrder.getCustomerEmail())
+                    .totalAmount(cancelledOrder.getTotalAmount())
+                    .status(cancelledOrder.getStatus().name())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            orderEventPublisher.publishOrderStatusUpdated(event);
+        } catch (Exception ex) {
+            logger.error("Failed to publish OrderStatusUpdated (Cancel) event for {}: {}", cancelledOrder.getId(), ex.getMessage());
+        }
 
         return OrderResponse.from(cancelledOrder);
     }

@@ -35,6 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.projectlombok:lombok")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.kafka:spring-kafka")
 
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.projectlombok:lombok")
