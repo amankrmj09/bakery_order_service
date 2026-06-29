@@ -2,7 +2,6 @@ package com.shah_s.bakery_order_service.service;
 
 import com.shah_s.bakery_order_service.client.ProductServiceClient;
 import com.shah_s.bakery_order_service.client.PaymentServiceClient;
-import com.shah_s.bakery_order_service.client.NotificationServiceClient;
 import com.shah_s.bakery_order_service.client.InternalStatsClient;
 import com.shah_s.bakery_order_service.dto.*;
 import com.shah_s.bakery_order_service.entity.Order;
@@ -40,8 +39,6 @@ public class OrderService {
 
     final private PaymentServiceClient paymentServiceClient;
     
-    final private NotificationServiceClient notificationServiceClient;
-    
     final private InternalStatsClient internalStatsClient;
     
     final private OrderEventPublisher orderEventPublisher;
@@ -58,11 +55,10 @@ public class OrderService {
     @Value("${order.limits.max-order-value:500.00}")
     private BigDecimal maxOrderValue;
 
-    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient, NotificationServiceClient notificationServiceClient, InternalStatsClient internalStatsClient, OrderEventPublisher orderEventPublisher) {
+    public OrderService(OrderRepository orderRepository, ProductServiceClient productServiceClient, PaymentServiceClient paymentServiceClient, InternalStatsClient internalStatsClient, OrderEventPublisher orderEventPublisher) {
         this.orderRepository = orderRepository;
         this.productServiceClient = productServiceClient;
         this.paymentServiceClient = paymentServiceClient;
-        this.notificationServiceClient = notificationServiceClient;
         this.internalStatsClient = internalStatsClient;
         this.orderEventPublisher = orderEventPublisher;
     }
