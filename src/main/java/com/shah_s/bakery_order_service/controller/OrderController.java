@@ -37,8 +37,8 @@ public class OrderController {
 
     // Create new order
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(
-            @Valid @RequestBody OrderRequest request,
+    public ResponseEntity<OrderResponseDto> createOrder(
+            @Valid @RequestBody OrderRequestDto request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -49,7 +49,7 @@ public class OrderController {
             request.setUserId(userId);
         }
 
-        OrderResponse order = orderService.createOrder(request);
+        OrderResponseDto order = orderService.createOrder(request);
 
         logger.info("Order created successfully: {}", order.getOrderNumber());
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
@@ -57,7 +57,7 @@ public class OrderController {
 
     // Get all orders with pagination
     @GetMapping
-    public ResponseEntity<Page<OrderResponse>> getAllOrders(
+    public ResponseEntity<Page<OrderResponseDto>> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -69,7 +69,7 @@ public class OrderController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<OrderResponse> orders = orderService.getAllOrders(pageable);
+        Page<OrderResponseDto> orders = orderService.getAllOrders(pageable);
 
         logger.info("Retrieved {} orders (page {} of {})", orders.getContent().size(),
                 page + 1, orders.getTotalPages());
@@ -78,14 +78,14 @@ public class OrderController {
 
     // Get order by ID
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponse> getOrderById(
+    public ResponseEntity<OrderResponseDto> getOrderById(
             @PathVariable UUID orderId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Get order by ID request received: {}", orderId);
 
-        OrderResponse order = orderService.getOrderById(orderId);
+        OrderResponseDto order = orderService.getOrderById(orderId);
 
         // Check if user can access this order (unless admin)
         if (userId != null && !"ADMIN".equals(userRole) && !order.getUserId().equals(userId)) {
@@ -98,7 +98,7 @@ public class OrderController {
 
     // Get order by order number
     @GetMapping("/number/{orderNumber}")
-    public ResponseEntity<OrderResponse> getOrderByOrderNumber(
+    public ResponseEntity<OrderResponseDto> getOrderByOrderNumber(
             @PathVariable String orderNumber,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -109,7 +109,7 @@ public class OrderController {
                 .map(order -> {
                     // Check if user can access this order (unless admin)
                     if (userId != null && !"ADMIN".equals(userRole) && !order.getUserId().equals(userId)) {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).<OrderResponse>build();
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).<OrderResponseDto>build();
                     }
                     logger.info("Order found: {}", orderNumber);
                     return ResponseEntity.ok(order);
@@ -119,7 +119,7 @@ public class OrderController {
 
     // Get orders by user ID
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByUserId(
+    public ResponseEntity<List<OrderResponseDto>> getOrdersByUserId(
             @PathVariable UUID userId,
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -131,7 +131,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<OrderResponse> orders = orderService.getOrdersByUserId(userId);
+        List<OrderResponseDto> orders = orderService.getOrdersByUserId(userId);
 
         logger.info("Retrieved {} orders for user", orders.size());
         return ResponseEntity.ok(orders);
@@ -139,7 +139,7 @@ public class OrderController {
 
     // Get orders by user ID with pagination
     @GetMapping("/user/{userId}/paginated")
-    public ResponseEntity<Page<OrderResponse>> getOrdersByUserIdWithPagination(
+    public ResponseEntity<Page<OrderResponseDto>> getOrdersByUserIdWithPagination(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -158,7 +158,7 @@ public class OrderController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<OrderResponse> orders = orderService.getOrdersByUserIdWithPagination(userId, pageable);
+        Page<OrderResponseDto> orders = orderService.getOrdersByUserIdWithPagination(userId, pageable);
 
         logger.info("Retrieved {} orders for user (page {} of {})", orders.getContent().size(),
                 page + 1, orders.getTotalPages());
@@ -167,12 +167,12 @@ public class OrderController {
 
     // Get orders by status
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByStatus(
+    public ResponseEntity<List<OrderResponseDto>> getOrdersByStatus(
             @PathVariable Order.OrderStatus status) {
 
         logger.info("Get orders by status request received: {}", status);
 
-        List<OrderResponse> orders = orderService.getOrdersByStatus(status);
+        List<OrderResponseDto> orders = orderService.getOrdersByStatus(status);
 
         logger.info("Retrieved {} orders with status {}", orders.size(), status);
         return ResponseEntity.ok(orders);
@@ -180,10 +180,10 @@ public class OrderController {
 
     // Search orders
     @GetMapping("/search")
-    public ResponseEntity<List<OrderResponse>> searchOrders(@RequestParam String query) {
+    public ResponseEntity<List<OrderResponseDto>> searchOrders(@RequestParam String query) {
         logger.info("Search orders request received with query: {}", query);
 
-        List<OrderResponse> orders = orderService.searchOrders(query);
+        List<OrderResponseDto> orders = orderService.searchOrders(query);
 
         logger.info("Search returned {} orders", orders.size());
         return ResponseEntity.ok(orders);
@@ -191,11 +191,11 @@ public class OrderController {
 
     // Get recent orders
     @GetMapping("/recent")
-    public ResponseEntity<List<OrderResponse>> getRecentOrders(
+    public ResponseEntity<List<OrderResponseDto>> getRecentOrders(
             @RequestParam(defaultValue = "7") int days) {
         logger.info("Get recent orders request received (last {} days)", days);
 
-        List<OrderResponse> orders = orderService.getRecentOrders(days);
+        List<OrderResponseDto> orders = orderService.getRecentOrders(days);
 
         logger.info("Retrieved {} recent orders", orders.size());
         return ResponseEntity.ok(orders);
@@ -203,7 +203,7 @@ public class OrderController {
 
     // ✅ FIXED: Advanced search with filters (removed Payment.PaymentMethod)
     @GetMapping("/filter")
-    public ResponseEntity<List<OrderResponse>> getOrdersWithFilters(
+    public ResponseEntity<List<OrderResponseDto>> getOrdersWithFilters(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) Order.OrderStatus status,
             @RequestParam(required = false) Order.DeliveryType deliveryType,
@@ -215,7 +215,7 @@ public class OrderController {
 
         logger.info("Advanced filter search request received");
 
-        List<OrderResponse> orders = orderService.getOrdersWithFilters(
+        List<OrderResponseDto> orders = orderService.getOrdersWithFilters(
                 userId, status, deliveryType, paymentMethod, minAmount, maxAmount, startDate, endDate);
 
         logger.info("Filter search returned {} orders", orders.size());
@@ -224,9 +224,9 @@ public class OrderController {
 
     // Update order status
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<OrderResponse> updateOrderStatus(
+    public ResponseEntity<OrderResponseDto> updateOrderStatus(
             @PathVariable UUID orderId,
-            @Valid @RequestBody OrderStatusUpdateRequest request,
+            @Valid @RequestBody OrderStatusUpdateRequestDto request,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Update order status request received: {} to {}", orderId, request.getStatus());
@@ -236,7 +236,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        OrderResponse order = orderService.updateOrderStatus(orderId, request);
+        OrderResponseDto order = orderService.updateOrderStatus(orderId, request);
 
         logger.info("Order status updated successfully: {}", orderId);
         return ResponseEntity.ok(order);
@@ -244,7 +244,7 @@ public class OrderController {
 
     // Cancel order
     @PostMapping("/{orderId}/cancel")
-    public ResponseEntity<OrderResponse> cancelOrder(
+    public ResponseEntity<OrderResponseDto> cancelOrder(
             @PathVariable UUID orderId,
             @RequestBody Map<String, String> request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -254,14 +254,14 @@ public class OrderController {
 
         // Check if user can cancel this order
         if (userId != null && !"ADMIN".equals(userRole)) {
-            OrderResponse existingOrder = orderService.getOrderById(orderId);
+            OrderResponseDto existingOrder = orderService.getOrderById(orderId);
             if (!existingOrder.getUserId().equals(userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }
 
         String reason = request.get("reason");
-        OrderResponse order = orderService.cancelOrder(orderId, reason);
+        OrderResponseDto order = orderService.cancelOrder(orderId, reason);
 
         logger.info("Order cancelled successfully: {}", orderId);
         return ResponseEntity.ok(order);
@@ -318,7 +318,7 @@ public class OrderController {
         try {
             // Update order based on payment status
             String paymentStatus = (String) paymentUpdate.get("status");
-            OrderStatusUpdateRequest statusUpdate = new OrderStatusUpdateRequest();
+            OrderStatusUpdateRequestDto statusUpdate = new OrderStatusUpdateRequestDto();
 
             switch (paymentStatus) {
                 case "COMPLETED" -> {

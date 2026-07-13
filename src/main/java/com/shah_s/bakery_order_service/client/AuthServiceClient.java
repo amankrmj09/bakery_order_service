@@ -7,15 +7,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import java.util.Map;
+import com.shah_s.bakery_order_service.dto.auth.TokenValidationRequestDto;
+import com.shah_s.bakery_order_service.dto.auth.TokenValidationResponseDto;
 
 @FeignClient(name = "bakery-auth-service", path = "/api/auth")
 public interface AuthServiceClient {
 
     @PostMapping("/validate-token")
-    Map<String, Object> validateToken(@RequestBody Map<String, String> request);
+    TokenValidationResponseDto validateToken(@RequestBody TokenValidationRequestDto request);
 
     @PostMapping("/validate")
-    Map<String, Object> validateTokenWithHeader(@RequestHeader("Authorization") String authHeader);
+    TokenValidationResponseDto validateTokenWithHeader(@RequestHeader("Authorization") String authHeader);
 
 }

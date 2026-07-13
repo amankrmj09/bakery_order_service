@@ -5,9 +5,7 @@ plugins {
     // id("org.asciidoctor.jvm.convert") version "4.0.3"
 }
 
-group = "com.dev_of_blue"
-version = "1.0.0"
-description = "bakery_order_service for order management"
+description = "Order Management and Processing Service for Bakery"
 
 java {
     toolchain {

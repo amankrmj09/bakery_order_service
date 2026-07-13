@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderStatusUpdateRequest {
+public class OrderStatusUpdateRequestDto {
 
     // Getters and Setters
     @NotNull(message = "Status is required")
@@ -21,9 +21,9 @@ public class OrderStatusUpdateRequest {
     private String reason; // For cancellations
 
     // Constructors
-    public OrderStatusUpdateRequest() {}
+    public OrderStatusUpdateRequestDto() {}
 
-    public OrderStatusUpdateRequest(Order.OrderStatus status) {
+    public OrderStatusUpdateRequestDto(Order.OrderStatus status) {
         this.status = status;
     }
 

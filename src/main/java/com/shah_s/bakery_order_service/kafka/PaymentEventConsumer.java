@@ -25,7 +25,7 @@ public class PaymentEventConsumer {
         
         try {
             String paymentStatus = event.getStatus();
-            com.shah_s.bakery_order_service.dto.OrderStatusUpdateRequest statusUpdate = new com.shah_s.bakery_order_service.dto.OrderStatusUpdateRequest();
+            com.shah_s.bakery_order_service.dto.OrderStatusUpdateRequestDto statusUpdate = new com.shah_s.bakery_order_service.dto.OrderStatusUpdateRequestDto();
 
             switch (paymentStatus) {
                 case "COMPLETED" -> {

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class OrderResponse {
+public class OrderResponseDto {
 
     // Getters and Setters
     private UUID id;
@@ -26,7 +26,7 @@ public class OrderResponse {
     private String deliveryAddress;
     private LocalDateTime deliveryDate;
     private String specialInstructions;
-    private List<OrderItemResponse> items;
+    private List<OrderItemResponseDto> items;
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
     private BigDecimal discountAmount;
@@ -47,11 +47,11 @@ public class OrderResponse {
     private Boolean canBeModified;
 
     // Constructors
-    public OrderResponse() {}
+    public OrderResponseDto() {}
 
     // Static factory method
-    public static OrderResponse from(Order order) {
-        OrderResponse response = new OrderResponse();
+    public static OrderResponseDto from(Order order) {
+        OrderResponseDto response = new OrderResponseDto();
         response.id = order.getId();
         response.orderNumber = order.getOrderNumber();
         response.userId = order.getUserId();
@@ -64,7 +64,7 @@ public class OrderResponse {
         response.deliveryDate = order.getDeliveryDate();
         response.specialInstructions = order.getSpecialInstructions();
         response.items = order.getOrderItems().stream()
-                .map(OrderItemResponse::from)
+                .map(OrderItemResponseDto::from)
                 .collect(Collectors.toList());
         response.subtotal = order.getSubtotal();
         response.taxAmount = order.getTaxAmount();

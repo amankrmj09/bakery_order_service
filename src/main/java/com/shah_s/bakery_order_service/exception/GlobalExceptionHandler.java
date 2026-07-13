@@ -9,7 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.devofblue.common.exception.ErrorResponse;
+import org.devofblue.common.exception.ErrorResponseDto;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
@@ -22,10 +22,10 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(OrderServiceException.class)
-    public ResponseEntity<ErrorResponse> handleOrderServiceException(OrderServiceException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponseDto> handleOrderServiceException(OrderServiceException ex, WebRequest request) {
         logger.error("Order service error: {}", ex.getMessage());
 
-        ErrorResponse error = new ErrorResponse(
+        ErrorResponseDto error = new ErrorResponseDto(
             "ORDER_SERVICE_ERROR",
             ex.getMessage(),
             LocalDateTime.now(),
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(FeignException.class)
-    public ResponseEntity<ErrorResponse> handleFeignException(FeignException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponseDto> handleFeignException(FeignException ex, WebRequest request) {
         logger.error("External service error: {}", ex.getMessage());
 
         String message = "External service unavailable";
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
             status = HttpStatus.BAD_REQUEST;
         }
 
-        ErrorResponse error = new ErrorResponse(
+        ErrorResponseDto error = new ErrorResponseDto(
             "EXTERNAL_SERVICE_ERROR",
             message,
             LocalDateTime.now(),
@@ -69,23 +69,23 @@ public class GlobalExceptionHandler {
     // Error Response Class
     
     @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleOrderNotFoundException(OrderNotFoundException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("ORDER_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+    public ResponseEntity<ErrorResponseDto> handleOrderNotFoundException(OrderNotFoundException ex, WebRequest request) {
+        ErrorResponseDto error = new ErrorResponseDto("ORDER_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleProductNotFoundException(ProductNotFoundException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("PRODUCT_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+    public ResponseEntity<ErrorResponseDto> handleProductNotFoundException(ProductNotFoundException ex, WebRequest request) {
+        ErrorResponseDto error = new ErrorResponseDto("PRODUCT_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
     @ExceptionHandler(InvalidOrderStatusException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidOrderStatusException(InvalidOrderStatusException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("INVALID_ORDER_STATUS", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+    public ResponseEntity<ErrorResponseDto> handleInvalidOrderStatusException(InvalidOrderStatusException ex, WebRequest request) {
+        ErrorResponseDto error = new ErrorResponseDto("INVALID_ORDER_STATUS", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
     @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<ErrorResponse> handleInsufficientStockException(InsufficientStockException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("INSUFFICIENT_STOCK", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+    public ResponseEntity<ErrorResponseDto> handleInsufficientStockException(InsufficientStockException ex, WebRequest request) {
+        ErrorResponseDto error = new ErrorResponseDto("INSUFFICIENT_STOCK", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 

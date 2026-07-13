@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Setter
 @Getter
-public class OrderItemResponse {
+public class OrderItemResponseDto {
 
     // Getters and Setters
     private UUID id;
@@ -32,11 +32,11 @@ public class OrderItemResponse {
     private LocalDateTime createdAt;
 
     // Constructors
-    public OrderItemResponse() {}
+    public OrderItemResponseDto() {}
 
     // Static factory method
-    public static OrderItemResponse from(OrderItem orderItem) {
-        OrderItemResponse response = new OrderItemResponse();
+    public static OrderItemResponseDto from(OrderItem orderItem) {
+        OrderItemResponseDto response = new OrderItemResponseDto();
         response.id = orderItem.getId();
         response.productId = orderItem.getProductId();
         response.productSku = orderItem.getProductSku();

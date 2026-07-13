@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Setter
 @Getter
-public class OrderRequest {
+public class OrderRequestDto {
 
     // Getters and Setters
     @NotNull(message = "User ID is required")
@@ -45,7 +45,7 @@ public class OrderRequest {
     @Valid
     @NotEmpty(message = "Order must contain at least one item")
     @Size(max = 50, message = "Order cannot contain more than 50 items")
-    private List<OrderItemRequest> items = new ArrayList<>();
+    private List<OrderItemRequestDto> items = new ArrayList<>();
 
     @Size(max = 50, message = "Discount code must not exceed 50 characters")
     private String discountCode;
@@ -73,6 +73,6 @@ public class OrderRequest {
     private String paymentNotes;
 
     // Constructors
-    public OrderRequest() {}
+    public OrderRequestDto() {}
 
 }

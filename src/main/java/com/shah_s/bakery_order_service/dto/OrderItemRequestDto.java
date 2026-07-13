@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Setter
 @Getter
-public class OrderItemRequest {
+public class OrderItemRequestDto {
 
     // Getters and Setters
     @NotNull(message = "Product ID is required")
@@ -29,9 +29,9 @@ public class OrderItemRequest {
     private BigDecimal unitPriceOverride;
 
     // Constructors
-    public OrderItemRequest() {}
+    public OrderItemRequestDto() {}
 
-    public OrderItemRequest(UUID productId, Integer quantity) {
+    public OrderItemRequestDto(UUID productId, Integer quantity) {
         this.productId = productId;
         this.quantity = quantity;
     }

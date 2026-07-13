@@ -25,4 +25,9 @@ public class OrderEventPublisher {
         logger.info("Publishing OrderStatusUpdated event for order ID: {}", event.getOrderId());
         kafkaTemplate.send("order-events", event.getOrderId().toString(), event);
     }
+
+    public void publishPaymentRequested(org.devofblue.common.event.PaymentRequestedEvent event) {
+        logger.info("Publishing PaymentRequestedEvent for order ID: {}", event.getOrderId());
+        kafkaTemplate.send("payment-requests", event.getOrderId().toString(), event);
+    }
 }
