@@ -30,7 +30,7 @@ repositories {
 extra["springCloudVersion"] = "2025.0.3"
 
 dependencies {
-    implementation("org.devofblue:common-libs:1.0-SNAPSHOT")
+    implementation("org.devofblue:common-libs:1.0.8")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-rest")
@@ -39,7 +39,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.projectlombok:lombok")
+    compileOnly("org.projectlombok:lombok")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.kafka:spring-kafka")
 
