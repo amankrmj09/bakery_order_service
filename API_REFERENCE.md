@@ -1,387 +1,450 @@
-# bakery_order_service API Report
+# Bakery Order Service API Reference
 
-## HealthController
-
-### `GET` `/api/health`
-- **API Name:** health
-- **Type:** REST / Synchronous
-
-**Request:**
-None
-
-**Response:**
-```json
-{
-  "status": "String - UP",
-  "service": "String - bakery-order-service",
-  "timestamp": "DateTime",
-  "version": "String - 1.0.0",
-  "database": "String - UP or DOWN",
-  "databaseUrl": "String",
-  "databaseError": "String"
-}
-```
+This document provides a detailed overview of the REST APIs exposed by the `bakery_order_service`.
 
 ---
 
-### `GET` `/api/info`
-- **API Name:** info
-- **Type:** REST / Synchronous
+## Health Controller
+Handles general service health, info, and metrics.
 
-**Request:**
+### 1. Main Service Health Check
+- **API Name:** `health`
+- **Method:** `GET`
+- **Path:** `/api/health`
+- **Description:** Returns the main health status of the order service.
+
+**Request Body:**
 None
 
-**Response:**
+**Response (JSON):**
 ```json
 {
-  "serviceName": "String",
-  "description": "String",
-  "version": "String",
-  "features": {},
-  "endpoints": {}
+  "status": "UP",
+  "service": "bakery-order-service",
+  "timestamp": "2026-07-13T10:00:00",
+  "version": "1.0.0",
+  "database": "UP",
+  "databaseUrl": "jdbc:mysql://localhost:3306/bakery",
+  "databaseError": "null or error message"
 }
 ```
 
----
+### 2. Service Info
+- **API Name:** `info`
+- **Method:** `GET`
+- **Path:** `/api/info`
+- **Description:** Returns information about the service including features and endpoints.
 
-### `GET` `/api/metrics`
-- **API Name:** metrics
-- **Type:** REST / Synchronous
-
-**Request:**
+**Request Body:**
 None
 
-**Response:**
+**Response (JSON):**
 ```json
 {
-  "uptime": "String",
-  "timestamp": "DateTime",
+  "serviceName": "Bakery Order Service",
+  "description": "Order management and payment processing service",
+  "version": "1.0.0",
+  "features": {
+    "orders": "Complete order lifecycle management",
+    "payments": "Multi-method payment processing",
+    "integration": "Product service integration for stock management",
+    "analytics": "Order and payment analytics"
+  },
+  "endpoints": {
+    "orders": "/api/orders",
+    "payments": "/api/payments"
+  }
+}
+```
+
+### 3. Service Metrics
+- **API Name:** `metrics`
+- **Method:** `GET`
+- **Path:** `/api/metrics`
+- **Description:** Returns application metrics like uptime and memory usage.
+
+**Request Body:**
+None
+
+**Response (JSON):**
+```json
+{
+  "uptime": "1 days, 2 hours, 30 minutes, 15 seconds",
+  "timestamp": "2026-07-13T10:00:00",
   "memory": {
-    "maxMemory": "String",
-    "totalMemory": "String",
-    "freeMemory": "String",
-    "usedMemory": "String"
+    "maxMemory": "1024 MB",
+    "totalMemory": "512 MB",
+    "freeMemory": "256 MB",
+    "usedMemory": "256 MB"
   }
 }
 ```
 
 ---
 
-## OrderController
+## Order Controller
+Handles all order-related operations.
 
-### `POST` `/api/orders`
-- **API Name:** createOrder
-- **Type:** REST / Synchronous
-- **Request Headers:**
-  - `X-User-Id` (String, optional)
+### 1. Create New Order
+- **API Name:** `createOrder`
+- **Method:** `POST`
+- **Path:** `/api/orders`
+- **Headers:** 
+  - `X-User-Id` (UUID, optional)
   - `X-User-Role` (String, optional)
 
-**Request:**
+**Request Body (JSON):**
 ```json
 {
-  "userId": "UUID - Required",
-  "customerName": "String - Required (Max 200 chars)",
-  "customerEmail": "String - Required (Email format)",
-  "customerPhone": "String",
-  "deliveryType": "String - Required (e.g. DELIVERY, PICKUP)",
-  "deliveryAddress": "String",
-  "deliveryDate": "DateTime",
-  "specialInstructions": "String (Max 1000 chars)",
+  "userId": "123e4567-e89b-12d3-a456-426614174000",
+  "customerName": "John Doe",
+  "customerEmail": "john.doe@example.com",
+  "customerPhone": "+1234567890",
+  "deliveryType": "PICKUP", 
+  "deliveryAddress": "123 Bakery St, City",
+  "deliveryDate": "2026-07-14T15:00:00",
+  "specialInstructions": "Extra napkins please",
   "items": [
     {
-      "productId": "UUID - Required",
-      "quantity": "Integer - Required (Min 1, Max 100)",
-      "specialInstructions": "String",
-      "unitPriceOverride": "BigDecimal"
+      "productId": "123e4567-e89b-12d3-a456-426614174001",
+      "quantity": 2,
+      "specialInstructions": "No nuts",
+      "unitPriceOverride": 15.50
     }
   ],
-  "discountCode": "String",
-  "paymentMethod": "String - Required (CASH, CARD, DIGITAL_WALLET, etc.)",
-  "paymentAmount": "BigDecimal - Required (Min 0.01)",
-  "currencyCode": "String - Default 'USD'",
-  "cardLastFour": "String",
-  "cardBrand": "String",
-  "cardType": "String",
-  "digitalWalletProvider": "String",
-  "bankName": "String",
-  "paymentNotes": "String"
+  "discountCode": "SUMMER10",
+  "paymentMethod": "CARD",
+  "paymentAmount": 31.00,
+  "currencyCode": "USD",
+  "cardLastFour": "1234",
+  "cardBrand": "Visa",
+  "cardType": "Credit",
+  "digitalWalletProvider": "ApplePay",
+  "bankName": "Chase",
+  "paymentNotes": "Paid online"
 }
 ```
 
-**Response:**
+**Response (JSON):**
 ```json
 {
-  "id": "UUID",
-  "orderNumber": "String",
-  "userId": "UUID",
-  "customerName": "String",
-  "customerEmail": "String",
-  "customerPhone": "String",
-  "status": "String (e.g. PENDING, CONFIRMED, CANCELLED)",
-  "deliveryType": "String",
-  "deliveryAddress": "String",
-  "deliveryDate": "DateTime",
-  "specialInstructions": "String",
+  "id": "123e4567-e89b-12d3-a456-426614174002",
+  "orderNumber": "ORD-20260713-1234",
+  "userId": "123e4567-e89b-12d3-a456-426614174000",
+  "customerName": "John Doe",
+  "customerEmail": "john.doe@example.com",
+  "customerPhone": "+1234567890",
+  "status": "PENDING",
+  "deliveryType": "PICKUP",
+  "deliveryAddress": "123 Bakery St, City",
+  "deliveryDate": "2026-07-14T15:00:00",
+  "specialInstructions": "Extra napkins please",
   "items": [
     {
-      "id": "UUID",
-      "productId": "UUID",
-      "productSku": "String",
-      "productName": "String",
-      "productCategory": "String",
-      "productDescription": "String",
-      "productImageUrl": "String",
-      "quantity": "Integer",
-      "unitPrice": "BigDecimal",
-      "discountPerItem": "BigDecimal",
-      "effectiveUnitPrice": "BigDecimal",
-      "subtotal": "BigDecimal",
-      "specialInstructions": "String",
-      "preparationTimeMinutes": "Integer",
-      "totalPreparationTime": "Integer",
-      "hasDiscount": "Boolean",
-      "createdAt": "DateTime"
+      "id": "123e4567-e89b-12d3-a456-426614174003",
+      "productId": "123e4567-e89b-12d3-a456-426614174001",
+      "productSku": "SKU-123",
+      "productName": "Chocolate Cake",
+      "productCategory": "Cakes",
+      "productDescription": "Delicious chocolate cake",
+      "productImageUrl": "http://example.com/cake.jpg",
+      "quantity": 2,
+      "unitPrice": 15.50,
+      "discountPerItem": 0.00,
+      "effectiveUnitPrice": 15.50,
+      "subtotal": 31.00,
+      "specialInstructions": "No nuts",
+      "preparationTimeMinutes": 30,
+      "totalPreparationTime": 60,
+      "hasDiscount": false,
+      "createdAt": "2026-07-13T10:00:00"
     }
   ],
-  "subtotal": "BigDecimal",
-  "taxAmount": "BigDecimal",
-  "discountAmount": "BigDecimal",
-  "deliveryFee": "BigDecimal",
-  "totalAmount": "BigDecimal",
-  "discountCode": "String",
-  "discountPercentage": "BigDecimal",
-  "estimatedPreparationMinutes": "Integer",
-  "estimatedReadyTime": "DateTime",
-  "createdAt": "DateTime",
-  "updatedAt": "DateTime",
-  "confirmedAt": "DateTime",
-  "completedAt": "DateTime",
-  "cancelledAt": "DateTime",
-  "cancellationReason": "String",
-  "totalItems": "Integer",
-  "canBeCancelled": "Boolean",
-  "canBeModified": "Boolean"
+  "subtotal": 31.00,
+  "taxAmount": 2.48,
+  "discountAmount": 3.10,
+  "deliveryFee": 0.00,
+  "totalAmount": 30.38,
+  "discountCode": "SUMMER10",
+  "discountPercentage": 10.0,
+  "estimatedPreparationMinutes": 60,
+  "estimatedReadyTime": "2026-07-13T11:00:00",
+  "createdAt": "2026-07-13T10:00:00",
+  "updatedAt": "2026-07-13T10:00:00",
+  "confirmedAt": null,
+  "completedAt": null,
+  "cancelledAt": null,
+  "cancellationReason": null,
+  "totalItems": 2,
+  "canBeCancelled": true,
+  "canBeModified": true
 }
 ```
 
----
+### 2. Get All Orders with Pagination
+- **API Name:** `getAllOrders`
+- **Method:** `GET`
+- **Path:** `/api/orders`
+- **Query Params:**
+  - `page` (default: 0)
+  - `size` (default: 20)
+  - `sortBy` (default: createdAt)
+  - `sortDir` (default: DESC)
+- **Headers:** 
+  - `X-User-Role` (String, optional)
 
-### `GET` `/api/orders`
-- **API Name:** getAllOrders
-- **Type:** REST / Synchronous
-- **Query Parameters:** `page` (int), `size` (int), `sortBy` (String), `sortDir` (String)
-- **Request Headers:** `X-User-Role` (optional)
-
-**Request:**
+**Request Body:**
 None
 
-**Response:**
-*(Page of OrderResponse)*
-
----
-
-### `GET` `/api/orders/{orderId}`
-- **API Name:** getOrderById
-- **Type:** REST / Synchronous
-- **Path Variable:** `orderId` (UUID)
-- **Request Headers:** `X-User-Id` (optional), `X-User-Role` (optional)
-
-**Request:**
-None
-
-**Response:**
-*(Same as `createOrder` OrderResponse)*
-
----
-
-### `GET` `/api/orders/number/{orderNumber}`
-- **API Name:** getOrderByOrderNumber
-- **Type:** REST / Synchronous
-- **Path Variable:** `orderNumber` (String)
-- **Request Headers:** `X-User-Id` (optional), `X-User-Role` (optional)
-
-**Request:**
-None
-
-**Response:**
-*(Same as `createOrder` OrderResponse)*
-
----
-
-### `GET` `/api/orders/user/{userId}`
-- **API Name:** getOrdersByUserId
-- **Type:** REST / Synchronous
-- **Path Variable:** `userId` (UUID)
-- **Request Headers:** `X-User-Id` (optional), `X-User-Role` (optional)
-
-**Request:**
-None
-
-**Response:**
-*(List of OrderResponse)*
-
----
-
-### `GET` `/api/orders/user/{userId}/paginated`
-- **API Name:** getOrdersByUserIdWithPagination
-- **Type:** REST / Synchronous
-- **Path Variable:** `userId` (UUID)
-- **Query Parameters:** `page` (int), `size` (int), `sortBy` (String), `sortDir` (String)
-- **Request Headers:** `X-User-Id` (optional), `X-User-Role` (optional)
-
-**Request:**
-None
-
-**Response:**
-*(Page of OrderResponse)*
-
----
-
-### `GET` `/api/orders/status/{status}`
-- **API Name:** getOrdersByStatus
-- **Type:** REST / Synchronous
-- **Path Variable:** `status` (String)
-
-**Request:**
-None
-
-**Response:**
-*(List of OrderResponse)*
-
----
-
-### `GET` `/api/orders/search`
-- **API Name:** searchOrders
-- **Type:** REST / Synchronous
-- **Query Parameters:** `query` (String)
-
-**Request:**
-None
-
-**Response:**
-*(List of OrderResponse)*
-
----
-
-### `GET` `/api/orders/recent`
-- **API Name:** getRecentOrders
-- **Type:** REST / Synchronous
-- **Query Parameters:** `days` (int, default 7)
-
-**Request:**
-None
-
-**Response:**
-*(List of OrderResponse)*
-
----
-
-### `GET` `/api/orders/filter`
-- **API Name:** getOrdersWithFilters
-- **Type:** REST / Synchronous
-- **Query Parameters:** `userId` (UUID), `status` (String), `deliveryType` (String), `paymentMethod` (String), `minAmount` (BigDecimal), `maxAmount` (BigDecimal), `startDate` (DateTime), `endDate` (DateTime)
-
-**Request:**
-None
-
-**Response:**
-*(List of OrderResponse)*
-
----
-
-### `PATCH` `/api/orders/{orderId}/status`
-- **API Name:** updateOrderStatus
-- **Type:** REST / Synchronous
-- **Path Variable:** `orderId` (UUID)
-- **Request Headers:** `X-User-Role` (optional)
-
-**Request:**
+**Response (JSON):**
 ```json
 {
-  "status": "String - Required (e.g. PENDING, CONFIRMED, COMPLETED)",
-  "notes": "String",
-  "reason": "String - For cancellations"
+  "content": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174002",
+      "orderNumber": "ORD-20260713-1234",
+      "status": "PENDING"
+      // ... full OrderResponseDto
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 20
+  },
+  "totalElements": 1,
+  "totalPages": 1,
+  "last": true
 }
 ```
 
-**Response:**
-*(Same as `createOrder` OrderResponse)*
+### 3. Get Order by ID
+- **API Name:** `getOrderById`
+- **Method:** `GET`
+- **Path:** `/api/orders/{orderId}`
+- **Headers:** 
+  - `X-User-Id` (UUID, optional)
+  - `X-User-Role` (String, optional)
 
----
-
-### `POST` `/api/orders/{orderId}/cancel`
-- **API Name:** cancelOrder
-- **Type:** REST / Synchronous
-- **Path Variable:** `orderId` (UUID)
-- **Request Headers:** `X-User-Id` (optional), `X-User-Role` (optional)
-
-**Request:**
-```json
-{
-  "reason": "String"
-}
-```
-
-**Response:**
-*(Same as `createOrder` OrderResponse)*
-
----
-
-### `GET` `/api/orders/statistics`
-- **API Name:** getOrderStatistics
-- **Type:** REST / Synchronous
-- **Query Parameters:** `startDate` (DateTime), `endDate` (DateTime)
-- **Request Headers:** `X-User-Role` (optional)
-
-**Request:**
+**Request Body:**
 None
 
-**Response:**
-```json
-{
-  "totalOrders": "Integer",
-  "totalRevenue": "BigDecimal",
-  "..." : "..."
-}
-```
-*(Inferred Map response)*
+**Response (JSON):**
+Returns a single `OrderResponseDto` (see Create New Order for structure).
 
----
+### 4. Get Order by Order Number
+- **API Name:** `getOrderByOrderNumber`
+- **Method:** `GET`
+- **Path:** `/api/orders/number/{orderNumber}`
+- **Headers:** 
+  - `X-User-Id` (UUID, optional)
+  - `X-User-Role` (String, optional)
 
-### `GET` `/api/orders/health`
-- **API Name:** health
-- **Type:** REST / Synchronous
-
-**Request:**
+**Request Body:**
 None
 
-**Response:**
+**Response (JSON):**
+Returns a single `OrderResponseDto` (see Create New Order for structure).
+
+### 5. Get Orders by User ID
+- **API Name:** `getOrdersByUserId`
+- **Method:** `GET`
+- **Path:** `/api/orders/user/{userId}`
+- **Headers:** 
+  - `X-User-Id` (UUID, optional)
+  - `X-User-Role` (String, optional)
+
+**Request Body:**
+None
+
+**Response (JSON):**
+Returns a List of `OrderResponseDto` objects.
+```json
+[
+  {
+    "id": "123e4567-e89b-12d3-a456-426614174002",
+    "orderNumber": "ORD-20260713-1234"
+    // ... full OrderResponseDto
+  }
+]
+```
+
+### 6. Get Orders by User ID with Pagination
+- **API Name:** `getOrdersByUserIdWithPagination`
+- **Method:** `GET`
+- **Path:** `/api/orders/user/{userId}/paginated`
+- **Query Params:**
+  - `page` (default: 0)
+  - `size` (default: 10)
+  - `sortBy` (default: createdAt)
+  - `sortDir` (default: DESC)
+- **Headers:** 
+  - `X-User-Id` (UUID, optional)
+  - `X-User-Role` (String, optional)
+
+**Request Body:**
+None
+
+**Response (JSON):**
+Returns a paginated response of `OrderResponseDto` objects (see Get All Orders with Pagination).
+
+### 7. Get Orders by Status
+- **API Name:** `getOrdersByStatus`
+- **Method:** `GET`
+- **Path:** `/api/orders/status/{status}`
+- **Description:** Valid statuses: `PENDING`, `CONFIRMED`, `PREPARING`, `READY`, `OUT_FOR_DELIVERY`, `DELIVERED`, `CANCELLED`
+
+**Request Body:**
+None
+
+**Response (JSON):**
+Returns a List of `OrderResponseDto` objects.
+
+### 8. Search Orders
+- **API Name:** `searchOrders`
+- **Method:** `GET`
+- **Path:** `/api/orders/search`
+- **Query Params:**
+  - `query` (String)
+
+**Request Body:**
+None
+
+**Response (JSON):**
+Returns a List of `OrderResponseDto` objects.
+
+### 9. Get Recent Orders
+- **API Name:** `getRecentOrders`
+- **Method:** `GET`
+- **Path:** `/api/orders/recent`
+- **Query Params:**
+  - `days` (int, default: 7)
+
+**Request Body:**
+None
+
+**Response (JSON):**
+Returns a List of `OrderResponseDto` objects.
+
+### 10. Advanced Filter Search
+- **API Name:** `getOrdersWithFilters`
+- **Method:** `GET`
+- **Path:** `/api/orders/filter`
+- **Query Params:**
+  - `userId` (UUID, optional)
+  - `status` (Order.OrderStatus, optional)
+  - `deliveryType` (Order.DeliveryType, optional)
+  - `paymentMethod` (String, optional)
+  - `minAmount` (BigDecimal, optional)
+  - `maxAmount` (BigDecimal, optional)
+  - `startDate` (ISO DateTime, optional)
+  - `endDate` (ISO DateTime, optional)
+
+**Request Body:**
+None
+
+**Response (JSON):**
+Returns a List of `OrderResponseDto` objects.
+
+### 11. Update Order Status
+- **API Name:** `updateOrderStatus`
+- **Method:** `PATCH`
+- **Path:** `/api/orders/{orderId}/status`
+- **Headers:** 
+  - `X-User-Role` (String, optional)
+
+**Request Body (JSON):**
 ```json
 {
-  "status": "String - UP",
-  "service": "String - order-service-orders",
-  "timestamp": "DateTime"
+  "status": "CONFIRMED",
+  "notes": "Order is confirmed and being prepared",
+  "reason": null
 }
 ```
 
----
+**Response (JSON):**
+Returns the updated `OrderResponseDto`.
 
-### `POST` `/api/orders/{orderId}/payment-update`
-- **API Name:** updateOrderPaymentStatus
-- **Type:** REST / Synchronous
-- **Path Variable:** `orderId` (UUID)
+### 12. Cancel Order
+- **API Name:** `cancelOrder`
+- **Method:** `POST`
+- **Path:** `/api/orders/{orderId}/cancel`
+- **Headers:** 
+  - `X-User-Id` (UUID, optional)
+  - `X-User-Role` (String, optional)
 
-**Request:**
+**Request Body (JSON):**
 ```json
 {
-  "status": "String (COMPLETED, FAILED, CANCELLED)",
-  "gatewayResponse": "String"
+  "reason": "Customer requested cancellation"
 }
 ```
 
-**Response:**
+**Response (JSON):**
+Returns the updated `OrderResponseDto` with status `CANCELLED`.
+
+### 13. Get Order Statistics
+- **API Name:** `getOrderStatistics`
+- **Method:** `GET`
+- **Path:** `/api/orders/statistics`
+- **Query Params:**
+  - `startDate` (ISO DateTime, optional)
+  - `endDate` (ISO DateTime, optional)
+- **Headers:** 
+  - `X-User-Role` (String, optional)
+
+**Request Body:**
+None
+
+**Response (JSON):**
 ```json
 {
-  "status": "String - updated or acknowledged"
+  "totalOrders": 150,
+  "totalRevenue": 4500.50,
+  "averageOrderValue": 30.00,
+  "statusCounts": {
+    "DELIVERED": 120,
+    "CANCELLED": 10,
+    "PENDING": 20
+  }
 }
 ```
+*(Exact fields depend on the internal map returned by the service)*
+
+### 14. Orders Health Check
+- **API Name:** `health`
+- **Method:** `GET`
+- **Path:** `/api/orders/health`
+
+**Request Body:**
+None
+
+**Response (JSON):**
+```json
+{
+  "status": "UP",
+  "service": "order-service-orders",
+  "timestamp": "2026-07-13T10:00:00"
+}
+```
+
+### 15. Payment Status Update Webhook
+- **API Name:** `updateOrderPaymentStatus`
+- **Method:** `POST`
+- **Path:** `/api/orders/{orderId}/payment-update`
+
+**Request Body (JSON):**
+```json
+{
+  "status": "COMPLETED",
+  "gatewayResponse": "Payment processed successfully",
+  "transactionId": "TXN-123456"
+}
+```
+
+**Response (JSON):**
+```json
+{
+  "status": "updated"
+}
+```
+*(Returns "acknowledged" if it fails to update but accepts the webhook call to prevent retries)*
