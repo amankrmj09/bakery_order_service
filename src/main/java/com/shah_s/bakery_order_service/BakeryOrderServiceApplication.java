@@ -7,10 +7,12 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 import org.springframework.context.annotation.Import;
 import org.devofblue.common.security.MethodSecurityConfig;
+import org.devofblue.common.security.FeignClientInterceptor;
+import org.devofblue.common.kafka.KafkaConfig;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@Import(MethodSecurityConfig.class)
+@Import({MethodSecurityConfig.class, FeignClientInterceptor.class, KafkaConfig.class, org.devofblue.common.feign.FeignConfig.class})
 @EnableFeignClients
 public class BakeryOrderServiceApplication {
 

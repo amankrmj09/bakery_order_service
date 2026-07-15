@@ -19,7 +19,7 @@ public class PaymentEventConsumer {
         this.orderService = orderService;
     }
 
-    @KafkaListener(topics = "payment-events", groupId = "order-service-group")
+    @KafkaListener(topics = "${kafka.topic.payment-events}", groupId = "order-service-group")
     public void consume(PaymentEvent event) {
         logger.info("Received PaymentEvent for Order ID: {} with status: {}", event.getOrderId(), event.getStatus());
         

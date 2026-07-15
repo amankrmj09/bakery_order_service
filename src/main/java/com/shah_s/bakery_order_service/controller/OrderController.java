@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -57,6 +58,7 @@ public class OrderController {
 
     // Get all orders with pagination
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<OrderResponseDto>> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -224,6 +226,7 @@ public class OrderController {
 
     // Update order status
     @PatchMapping("/{orderId}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'BAKER')")
     public ResponseEntity<OrderResponseDto> updateOrderStatus(
             @PathVariable UUID orderId,
             @Valid @RequestBody OrderStatusUpdateRequestDto request,
@@ -269,6 +272,7 @@ public class OrderController {
 
     // Get order statistics
     @GetMapping("/statistics")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getOrderStatistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
@@ -297,18 +301,13 @@ public class OrderController {
 
     // Health check
     @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> health() {
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "UP");
-        response.put("service", "order-service-orders");
-        response.put("timestamp", LocalDateTime.now().toString());
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<org.devofblue.common.dto.HealthResponseDto> health() {
+        return ResponseEntity.ok(new org.devofblue.common.dto.HealthResponseDto("UP", "order-service-orders"));
     }
 
     // Payment status update webhook (called by Payment Service)
     @PostMapping("/{orderId}/payment-update")
-    public ResponseEntity<Map<String, String>> updateOrderPaymentStatus(
+    public ResponseEntity<org.devofblue.common.dto.MessageResponseDto> updateOrderPaymentStatus(
             @PathVariable UUID orderId,
             @RequestBody Map<String, Object> paymentUpdate) {
 
@@ -344,11 +343,11 @@ public class OrderController {
                 orderService.updateOrderStatus(orderId, statusUpdate);
             }
 
-            return ResponseEntity.ok(Map.of("status", "updated"));
+            return ResponseEntity.ok(new org.devofblue.common.dto.MessageResponseDto("Payment status updated"));
 
         } catch (Exception e) {
             logger.error("Failed to update order payment status: {}", e.getMessage());
-            return ResponseEntity.ok(Map.of("status", "acknowledged")); // Don't fail Payment Service callback
+            return ResponseEntity.ok(new org.devofblue.common.dto.MessageResponseDto("Payment status acknowledged")); // Don't fail Payment Service callback
         }
     }
 }

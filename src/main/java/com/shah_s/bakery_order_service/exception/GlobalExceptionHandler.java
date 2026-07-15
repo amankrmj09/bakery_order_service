@@ -1,6 +1,6 @@
 package com.shah_s.bakery_order_service.exception;
 
-import feign.FeignException;
+ 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.devofblue.common.exception.BaseExceptionHandler;
+
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends BaseExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -35,31 +37,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<ErrorResponseDto> handleFeignException(FeignException ex, WebRequest request) {
-        logger.error("External service error: {}", ex.getMessage());
-
-        String message = "External service unavailable";
-        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
-
-        if (ex.status() == 404) {
-            message = "Requested resource not found";
-            status = HttpStatus.NOT_FOUND;
-        } else if (ex.status() == 400) {
-            message = "Invalid request to external service";
-            status = HttpStatus.BAD_REQUEST;
-        }
-
-        ErrorResponseDto error = new ErrorResponseDto(
-            "EXTERNAL_SERVICE_ERROR",
-            message,
-            LocalDateTime.now(),
-            request.getDescription(false)
-        );
-
-        return ResponseEntity.status(status).body(error);
-    }
-
+    
     
 
     
