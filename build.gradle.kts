@@ -37,7 +37,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-rest")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-web")
 
     // 3. Spring Cloud & Discovery
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
@@ -60,6 +60,7 @@ dependencies {
     // 7. Third-Party Utilities (Jackson, AWS, etc.)
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4")
 
     // 8. Tooling & Lombok
     compileOnly("org.projectlombok:lombok")
