@@ -1,9 +1,9 @@
-package com.blubugtech.bakery_order_service.client;
+package com.blubugtech.bakery_order_service.client.statistics;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import com.blubugtech.common.dto.RevenuePayloadDto;
+import com.blubugtech.common.contract.messaging.RevenuePayload;
 
 @FeignClient(name = "bakery-auth-service", contextId = "internalStatsClient", path = "/api/users/internal/stats")
 public interface InternalStatsClient {
@@ -15,5 +15,5 @@ public interface InternalStatsClient {
     void decrementOrders();
 
     @PostMapping(value = "/add-revenue", headers = "X-User-Role=SYSTEM")
-    void addRevenue(@RequestBody RevenuePayloadDto payload);
+    void addRevenue(@RequestBody RevenuePayload payload);
 }

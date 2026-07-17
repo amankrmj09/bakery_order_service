@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_order_service.service;
+package com.blubugtech.bakery_order_service.integration.kafka.producer;
 
 import com.blubugtech.common.event.OrderEvent;
 import org.slf4j.Logger;
@@ -23,17 +23,17 @@ public class OrderEventPublisher {
     }
     
     public void publishOrderCreated(OrderEvent event) {
-        logger.info("Publishing OrderCreated event for order ID: {}", event.getOrderId());
-        kafkaTemplate.send(orderEventsTopic, event.getOrderId().toString(), event);
+        logger.info("Publishing OrderCreated event for order ID: {}", event.getPayload().getOrderId());
+        kafkaTemplate.send(orderEventsTopic, event.getPayload().getOrderId().toString(), event);
     }
     
     public void publishOrderStatusUpdated(OrderEvent event) {
-        logger.info("Publishing OrderStatusUpdated event for order ID: {}", event.getOrderId());
-        kafkaTemplate.send(orderEventsTopic, event.getOrderId().toString(), event);
+        logger.info("Publishing OrderStatusUpdated event for order ID: {}", event.getPayload().getOrderId());
+        kafkaTemplate.send(orderEventsTopic, event.getPayload().getOrderId().toString(), event);
     }
 
     public void publishPaymentRequested(com.blubugtech.common.event.PaymentRequestedEvent event) {
-        logger.info("Publishing PaymentRequestedEvent for order ID: {}", event.getOrderId());
-        kafkaTemplate.send(paymentRequestsTopic, event.getOrderId().toString(), event);
+        logger.info("Publishing PaymentRequestedEvent for order ID: {}", event.getPayload().getOrderId());
+        kafkaTemplate.send(paymentRequestsTopic, event.getPayload().getOrderId().toString(), event);
     }
 }

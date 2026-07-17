@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_order_service.dto;
+package com.blubugtech.bakery_order_service.dto.item;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Setter
 @Getter
-public class OrderItemRequestDto {
+public class OrderItemRequest {
 
     // Getters and Setters
     @NotNull(message = "Product ID is required")
@@ -29,9 +29,9 @@ public class OrderItemRequestDto {
     private BigDecimal unitPriceOverride;
 
     // Constructors
-    public OrderItemRequestDto() {}
+    public OrderItemRequest() {}
 
-    public OrderItemRequestDto(UUID productId, Integer quantity) {
+    public OrderItemRequest(UUID productId, Integer quantity) {
         this.productId = productId;
         this.quantity = quantity;
     }

@@ -1,6 +1,7 @@
-package com.blubugtech.bakery_order_service.dto;
+package com.blubugtech.bakery_order_service.dto.order;
 
-import com.blubugtech.bakery_order_service.entity.Order;
+import com.blubugtech.bakery_order_service.dto.item.OrderItemRequest;
+import com.blubugtech.bakery_order_service.enums.DeliveryType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 @Setter
 @Getter
-public class OrderRequestDto {
+public class OrderRequest {
 
     // Getters and Setters
     @NotNull(message = "User ID is required")
@@ -33,7 +34,7 @@ public class OrderRequestDto {
     private String customerPhone;
 
     @NotNull(message = "Delivery type is required")
-    private Order.DeliveryType deliveryType;
+    private DeliveryType deliveryType;
 
     private String deliveryAddress;
 
@@ -43,9 +44,8 @@ public class OrderRequestDto {
     private String specialInstructions;
 
     @Valid
-    @NotEmpty(message = "Order must contain at least one item")
-    @Size(max = 50, message = "Order cannot contain more than 50 items")
-    private List<OrderItemRequestDto> items = new ArrayList<>();
+    @NotNull(message = "Items list cannot be empty")
+    private List<OrderItemRequest> items = new ArrayList<>();
 
     @Size(max = 50, message = "Discount code must not exceed 50 characters")
     private String discountCode;
@@ -73,6 +73,6 @@ public class OrderRequestDto {
     private String paymentNotes;
 
     // Constructors
-    public OrderRequestDto() {}
+    public OrderRequest() {}
 
 }

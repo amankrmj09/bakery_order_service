@@ -1,5 +1,7 @@
 package com.blubugtech.bakery_order_service.entity;
 
+import com.blubugtech.bakery_order_service.enums.DeliveryType;
+import com.blubugtech.bakery_order_service.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -213,21 +215,5 @@ public class Order {
         String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
         String randomPart = String.valueOf((int) (Math.random() * 9000) + 1000);
         return "ORD-" + timestamp + "-" + randomPart;
-    }
-
-    // Enums
-    public enum OrderStatus {
-        PENDING,
-        CONFIRMED,
-        PREPARING,
-        READY,
-        OUT_FOR_DELIVERY,
-        DELIVERED,
-        CANCELLED
-    }
-
-    public enum DeliveryType {
-        PICKUP,
-        DELIVERY
     }
 }

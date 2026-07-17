@@ -1,6 +1,6 @@
-package com.blubugtech.bakery_order_service.dto;
+package com.blubugtech.bakery_order_service.dto.order;
 
-import com.blubugtech.bakery_order_service.entity.Order;
+import com.blubugtech.bakery_order_service.enums.OrderStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -8,11 +8,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderStatusUpdateRequestDto {
+public class OrderStatusUpdateRequest {
 
     // Getters and Setters
     @NotNull(message = "Status is required")
-    private Order.OrderStatus status;
+    private OrderStatus status;
 
     @Size(max = 500, message = "Notes must not exceed 500 characters")
     private String notes;
@@ -21,9 +21,9 @@ public class OrderStatusUpdateRequestDto {
     private String reason; // For cancellations
 
     // Constructors
-    public OrderStatusUpdateRequestDto() {}
+    public OrderStatusUpdateRequest() {}
 
-    public OrderStatusUpdateRequestDto(Order.OrderStatus status) {
+    public OrderStatusUpdateRequest(OrderStatus status) {
         this.status = status;
     }
 

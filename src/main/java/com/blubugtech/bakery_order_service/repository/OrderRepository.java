@@ -1,6 +1,8 @@
 package com.blubugtech.bakery_order_service.repository;
 
 import com.blubugtech.bakery_order_service.entity.Order;
+import com.blubugtech.bakery_order_service.enums.OrderStatus;
+import com.blubugtech.bakery_order_service.enums.DeliveryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,20 +46,20 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     // Find orders by status
     @EntityGraph(attributePaths = {"orderItems"})
-    List<Order> findByStatusOrderByCreatedAtDesc(Order.OrderStatus status);
+    List<Order> findByStatusOrderByCreatedAtDesc(OrderStatus status);
 
     // Find orders by status with pagination
     @EntityGraph(attributePaths = {"orderItems"})
-    Page<Order> findByStatus(Order.OrderStatus status, Pageable pageable);
+    Page<Order> findByStatus(OrderStatus status, Pageable pageable);
 
     // Find orders by multiple statuses
     @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o WHERE o.status IN :statuses ORDER BY o.createdAt DESC")
-    List<Order> findByStatusIn(@Param("statuses") List<Order.OrderStatus> statuses);
+    List<Order> findByStatusIn(@Param("statuses") List<OrderStatus> statuses);
 
     // Find orders by delivery type
     @EntityGraph(attributePaths = {"orderItems"})
-    List<Order> findByDeliveryTypeOrderByCreatedAtDesc(Order.DeliveryType deliveryType);
+    List<Order> findByDeliveryTypeOrderByCreatedAtDesc(DeliveryType deliveryType);
 
     // Find orders by date range
     @EntityGraph(attributePaths = {"orderItems"})
@@ -69,12 +71,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     // Find orders by user and status
     @EntityGraph(attributePaths = {"orderItems"})
-    List<Order> findByUserIdAndStatusOrderByCreatedAtDesc(UUID userId, Order.OrderStatus status);
+    List<Order> findByUserIdAndStatusOrderByCreatedAtDesc(UUID userId, OrderStatus status);
 
     // Find orders by user and multiple statuses
     @EntityGraph(attributePaths = {"orderItems"})
     @Query("SELECT o FROM Order o WHERE o.userId = :userId AND o.status IN :statuses ORDER BY o.createdAt DESC")
-    List<Order> findByUserIdAndStatusIn(@Param("userId") UUID userId, @Param("statuses") List<Order.OrderStatus> statuses);
+    List<Order> findByUserIdAndStatusIn(@Param("userId") UUID userId, @Param("statuses") List<OrderStatus> statuses);
 
     // Find recent orders (last N days)
     @EntityGraph(attributePaths = {"orderItems"})
@@ -116,7 +118,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     // - findOrdersWithPendingPayments
 
     // Count orders by status
-    long countByStatus(Order.OrderStatus status);
+    long countByStatus(OrderStatus status);
 
     // Count orders by user
     long countByUserId(UUID userId);
@@ -125,7 +127,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     long countByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     // Count orders by status and date range
-    long countByStatusAndCreatedAtBetween(Order.OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
+    long countByStatusAndCreatedAtBetween(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
 
     // Get daily order statistics
     @Query("SELECT DATE(o.createdAt) as orderDate, " +
@@ -229,8 +231,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             "AND (:endDate IS NULL OR o.createdAt <= :endDate) " +
             "ORDER BY o.createdAt DESC")
     List<Order> findOrdersWithFilters(@Param("userId") UUID userId,
-                                      @Param("status") Order.OrderStatus status,
-                                      @Param("deliveryType") Order.DeliveryType deliveryType,
+                                      @Param("status") OrderStatus status,
+                                      @Param("deliveryType") DeliveryType deliveryType,
                                       @Param("paymentMethod") Object paymentMethod, // Ignored parameter (kept for compatibility)
                                       @Param("minAmount") BigDecimal minAmount,
                                       @Param("maxAmount") BigDecimal maxAmount,
