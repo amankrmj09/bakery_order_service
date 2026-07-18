@@ -283,10 +283,6 @@ public class OrderController {
         return ResponseEntity.ok(statistics);
     }
 
-    @GetMapping("/health")
-    public ResponseEntity<HealthResponse> health() {
-        return ResponseEntity.ok(new HealthResponse("UP", "order-service-orders"));
-    }
 
     @PostMapping("/{orderId}/payment-update")
     public ResponseEntity<MessageResponse> updateOrderPaymentStatus(

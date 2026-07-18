@@ -4,69 +4,28 @@ This document provides a detailed overview of the REST APIs exposed by the baker
 
 ---
 
-## Health Controller
-**Base Path:** `/api`
+## System & Monitoring (Actuator)
+**Base Path:** `/actuator`
 
-### 1. Main Service Health Check
+Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
+
+### 1. Health Check
 - **Method:** `GET`
-- **Path:** `/api/health`
+- **Path:** `/actuator/health`
 - **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "status": "UP",
-    "service": "bakery-order-service",
-    "timestamp": "2026-07-13T10:00:00",
-    "version": "1.0.0",
-    "database": "UP",
-    "databaseUrl": "jdbc:mysql://localhost:3306/bakery",
-    "databaseError": "null or error message"
-  }
-  ```
+- **Response Body:** `200 OK` (Standard Actuator Health JSON)
 
 ### 2. Service Info
 - **Method:** `GET`
-- **Path:** `/api/info`
+- **Path:** `/actuator/info`
 - **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "serviceName": "Bakery Order Service",
-    "description": "Order management and payment processing service",
-    "version": "1.0.0",
-    "features": {
-      "orders": "Complete order lifecycle management",
-      "payments": "Multi-method payment processing",
-      "integration": "Product service integration for stock management",
-      "analytics": "Order and payment analytics"
-    },
-    "endpoints": {
-      "orders": "/api/orders",
-      "payments": "/api/payments"
-    }
-  }
-  ```
+- **Response Body:** `200 OK` (Standard Actuator Info JSON)
 
-### 3. Service Metrics
+### 3. Prometheus Metrics
 - **Method:** `GET`
-- **Path:** `/api/metrics`
-- **Type of API:** `Admin`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "uptime": "1 days, 2 hours, 30 minutes, 15 seconds",
-    "timestamp": "2026-07-13T10:00:00",
-    "memory": {
-      "maxMemory": "1024 MB",
-      "totalMemory": "512 MB",
-      "freeMemory": "256 MB",
-      "usedMemory": "256 MB"
-    }
-  }
-  ```
+- **Path:** `/actuator/prometheus`
+- **Type of API:** `Public`
+- **Response Body:** `200 OK` (Prometheus Text Format)
 
 ---
 
@@ -233,7 +192,7 @@ This document provides a detailed overview of the REST APIs exposed by the baker
 ### 7. Get Orders by Status
 - **Method:** `GET`
 - **Path:** `/api/orders/status/{status}`
-- **Type of API:** `Admin`
+- **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
   *(Returns a List of `OrderResponseDto` objects)*
@@ -241,7 +200,7 @@ This document provides a detailed overview of the REST APIs exposed by the baker
 ### 8. Search Orders
 - **Method:** `GET`
 - **Path:** `/api/orders/search`
-- **Type of API:** `Admin`
+- **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
   *(Returns a List of `OrderResponseDto` objects)*
@@ -249,7 +208,7 @@ This document provides a detailed overview of the REST APIs exposed by the baker
 ### 9. Get Recent Orders
 - **Method:** `GET`
 - **Path:** `/api/orders/recent`
-- **Type of API:** `Admin`
+- **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
   *(Returns a List of `OrderResponseDto` objects)*
@@ -257,7 +216,7 @@ This document provides a detailed overview of the REST APIs exposed by the baker
 ### 10. Advanced Filter Search
 - **Method:** `GET`
 - **Path:** `/api/orders/filter`
-- **Type of API:** `Admin`
+- **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
   *(Returns a List of `OrderResponseDto` objects)*
@@ -265,7 +224,7 @@ This document provides a detailed overview of the REST APIs exposed by the baker
 ### 11. Update Order Status
 - **Method:** `PATCH`
 - **Path:** `/api/orders/{orderId}/status`
-- **Type of API:** `Admin`
+- **Type of API:** `Admin/Baker`
 - **Request Body:**
   ```json
   {
@@ -309,21 +268,7 @@ This document provides a detailed overview of the REST APIs exposed by the baker
   }
   ```
 
-### 14. Orders Health Check
-- **Method:** `GET`
-- **Path:** `/api/orders/health`
-- **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "status": "UP",
-    "service": "order-service-orders",
-    "timestamp": "2026-07-13T10:00:00"
-  }
-  ```
-
-### 15. Payment Status Update Webhook
+### 14. Payment Status Update Webhook
 - **Method:** `POST`
 - **Path:** `/api/orders/{orderId}/payment-update`
 - **Type of API:** `Public`
@@ -338,6 +283,6 @@ This document provides a detailed overview of the REST APIs exposed by the baker
 - **Response Body:** `200 OK`
   ```json
   {
-    "status": "updated"
+    "message": "Payment status updated"
   }
   ```
