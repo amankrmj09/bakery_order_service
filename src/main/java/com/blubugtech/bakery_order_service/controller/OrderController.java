@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedModel;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +63,7 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<OrderResponse>> getAllOrders(
+    public ResponseEntity<PagedModel<OrderResponse>> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -78,7 +79,7 @@ public class OrderController {
 
         logger.info("Retrieved {} orders (page {} of {})", orders.getContent().size(),
                 page + 1, orders.getTotalPages());
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(new PagedModel<>(orders));
     }
 
     @GetMapping("/{orderId}")
@@ -137,7 +138,7 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}/paginated")
-    public ResponseEntity<Page<OrderResponse>> getOrdersByUserIdWithPagination(
+    public ResponseEntity<PagedModel<OrderResponse>> getOrdersByUserIdWithPagination(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -159,7 +160,7 @@ public class OrderController {
 
         logger.info("Retrieved {} orders for user (page {} of {})", orders.getContent().size(),
                 page + 1, orders.getTotalPages());
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(new PagedModel<>(orders));
     }
 
     @GetMapping("/status/{status}")
