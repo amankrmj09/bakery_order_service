@@ -237,6 +237,25 @@ public class OrderServiceImpl implements OrderService {
                 order.setConfirmedAt(now);
                 inventoryService.consumeStockForOrder(order);
                 statisticsGateway.incrementOrders();
+                
+                // Generate and publish invoice event
+                String invoiceUrl = "https://shahs-bakery.com/invoices/INV-" + order.getOrderNumber() + ".pdf";
+                OrderPayload invoicePayload = OrderPayload.builder()
+                        .orderId(order.getId())
+                        .orderNumber(order.getOrderNumber())
+                        .userId(order.getUserId())
+                        .customerEmail(order.getCustomerEmail())
+                        .totalAmount(order.getTotalAmount())
+                        .status("INVOICE_GENERATED")
+                        .invoiceUrl(invoiceUrl)
+                        .deliveryAddress(order.getDeliveryAddress())
+                        .timestamp(LocalDateTime.now())
+                        .build();
+                OrderEvent invoiceEvent = OrderEvent.builder()
+                        .eventType("INVOICE_GENERATED")
+                        .payload(invoicePayload)
+                        .build();
+                orderEventDispatcher.dispatchOrderStatusUpdated(invoiceEvent);
             }
             case DELIVERED -> {
                 order.setCompletedAt(now);
@@ -294,6 +313,7 @@ public class OrderServiceImpl implements OrderService {
                     .customerEmail(order.getCustomerEmail())
                     .totalAmount(order.getTotalAmount())
                     .status(order.getStatus().name())
+                    .deliveryAddress(order.getDeliveryAddress())
                     .timestamp(LocalDateTime.now())
                     .build();
             OrderEvent event = OrderEvent.builder()
