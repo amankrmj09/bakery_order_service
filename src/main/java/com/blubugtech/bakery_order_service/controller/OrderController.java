@@ -238,7 +238,8 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<OrderResponse> cancelOrder(
             @PathVariable UUID orderId,
-            @RequestBody Map<String, String> request,
+            @RequestParam(value = "reason", required = false) String paramReason,
+            @RequestBody(required = false) Map<String, String> request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -252,7 +253,12 @@ public class OrderController {
             }
         }
 
-        String reason = request != null ? request.get("reason") : "User requested cancellation";
+        String reason = "User requested cancellation";
+        if (paramReason != null && !paramReason.trim().isEmpty()) {
+            reason = paramReason;
+        } else if (request != null && request.get("reason") != null && !request.get("reason").trim().isEmpty()) {
+            reason = request.get("reason");
+        }
         OrderResponse order = orderService.cancelOrder(orderId, reason, isAdmin);
 
         logger.info("Order cancelled successfully: {}", orderId);
