@@ -199,7 +199,7 @@ public class OrderServiceImpl implements OrderService {
         inventoryService.releaseStockForOrder(order);
 
         Order cancelledOrder = orderRepository.save(order);
-        publishOrderEvent(cancelledOrder, "CANCELLED");
+        publishOrderEvent(cancelledOrder, "CANCELLED", java.util.Map.of("cancelledByAdmin", isAdmin));
 
         return orderMapper.toResponse(cancelledOrder);
     }
@@ -335,6 +335,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void publishOrderEvent(Order order, String eventType) {
+        publishOrderEvent(order, eventType, null);
+    }
+
+    private void publishOrderEvent(Order order, String eventType, java.util.Map<String, Object> metadata) {
         try {
             OrderPayload payload = OrderPayload.builder()
                     .orderId(order.getId())
@@ -349,6 +353,7 @@ public class OrderServiceImpl implements OrderService {
             OrderEvent event = OrderEvent.builder()
                     .eventType(eventType.equals("CREATED") ? "ORDER_CREATED" : "ORDER_STATUS_UPDATED")
                     .payload(payload)
+                    .metadata(metadata)
                     .build();
             if ("CREATED".equals(eventType)) {
                 orderEventDispatcher.dispatchOrderCreated(event);
