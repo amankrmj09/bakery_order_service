@@ -157,7 +157,12 @@ public class OrderServiceImpl implements OrderService {
         handleStatusTransition(order, oldStatus, request.getStatus(), request.getNotes());
 
         Order updatedOrder = orderRepository.save(order);
-        publishOrderEvent(updatedOrder, "STATUS_UPDATED");
+        
+        java.util.Map<String, Object> metadata = new java.util.HashMap<>();
+        if (request.getStatus() == OrderStatus.CANCELLED) {
+            metadata.put("cancelledByAdmin", true);
+        }
+        publishOrderEvent(updatedOrder, "STATUS_UPDATED", metadata);
 
         return orderMapper.toResponse(updatedOrder);
     }
