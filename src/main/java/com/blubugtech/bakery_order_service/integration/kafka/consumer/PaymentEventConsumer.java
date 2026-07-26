@@ -25,29 +25,8 @@ public class PaymentEventConsumer {
         
         try {
             String paymentStatus = event.getPayload().getStatus();
-            com.blubugtech.bakery_order_service.dto.order.OrderStatusUpdateRequest statusUpdate = new com.blubugtech.bakery_order_service.dto.order.OrderStatusUpdateRequest();
-
-            switch (paymentStatus) {
-                case "COMPLETED" -> {
-                    statusUpdate.setStatus(com.blubugtech.bakery_order_service.enums.OrderStatus.CONFIRMED);
-                    statusUpdate.setNotes("Payment completed successfully");
-                }
-                case "FAILED" -> {
-                    statusUpdate.setStatus(com.blubugtech.bakery_order_service.enums.OrderStatus.CANCELLED);
-                    statusUpdate.setReason("Payment failed");
-                }
-                case "CANCELLED" -> {
-                    statusUpdate.setStatus(com.blubugtech.bakery_order_service.enums.OrderStatus.CANCELLED);
-                    statusUpdate.setReason("Payment cancelled");
-                }
-            }
-
-            if (statusUpdate.getStatus() != null) {
-                orderService.updateOrderStatus(event.getPayload().getOrderId(), statusUpdate);
-                logger.info("Updated order {} status to {} due to payment event", event.getPayload().getOrderId(), statusUpdate.getStatus());
-            } else {
-                logger.info("Payment status {} for order {} - no order status change needed", paymentStatus, event.getPayload().getOrderId());
-            }
+            orderService.updatePaymentStatus(event.getPayload().getOrderId(), paymentStatus, "Payment event: " + paymentStatus);
+            logger.info("Updated order {} payment status to {} due to payment event", event.getPayload().getOrderId(), paymentStatus);
         } catch (Exception e) {
             logger.error("Failed to process payment event: {}", e.getMessage());
         }

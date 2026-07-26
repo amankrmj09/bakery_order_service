@@ -47,6 +47,8 @@ public class OrderResponse {
     private Integer totalItems;
     private Boolean canBeCancelled;
     private Boolean canBeModified;
+    private String paymentMethod;
+    private String paymentStatus;
 
     // Constructors
     public OrderResponse() {}

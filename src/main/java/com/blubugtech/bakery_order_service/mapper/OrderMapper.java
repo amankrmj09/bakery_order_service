@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 public interface OrderMapper {
 
     @Mapping(target = "items", source = "orderItems")
-    @Mapping(target = "canBeCancelled", ignore = true)
-    @Mapping(target = "canBeModified", ignore = true)
+    @Mapping(target = "canBeCancelled", expression = "java(order.canBeCancelled())")
+    @Mapping(target = "canBeModified", expression = "java(order.canBeModified())")
     OrderResponse toResponse(Order order);
 }

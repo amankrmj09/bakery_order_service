@@ -24,7 +24,11 @@ public interface OrderService {
     List<OrderResponse> getOrdersByStatus(OrderStatus status);
     Page<OrderResponse> getAllOrders(Pageable pageable);
     OrderResponse updateOrderStatus(UUID orderId, OrderStatusUpdateRequest request);
-    OrderResponse cancelOrder(UUID orderId, String reason);
+    OrderResponse updatePaymentStatus(UUID orderId, String paymentStatus, String notes);
+    OrderResponse cancelOrder(UUID orderId, String reason, boolean isAdmin);
+    default OrderResponse cancelOrder(UUID orderId, String reason) {
+        return cancelOrder(orderId, reason, false);
+    }
     List<OrderResponse> getRecentOrders(int days);
     List<OrderResponse> searchOrders(String searchTerm);
     List<OrderResponse> getOrdersWithFilters(UUID userId, OrderStatus status, DeliveryType deliveryType, String paymentMethod, BigDecimal minAmount, BigDecimal maxAmount, LocalDateTime startDate, LocalDateTime endDate);

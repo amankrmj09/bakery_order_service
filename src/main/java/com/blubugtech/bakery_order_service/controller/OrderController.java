@@ -244,15 +244,16 @@ public class OrderController {
 
         logger.info("Cancel order request received: {}", orderId);
 
-        if (userId != null && !"ADMIN".equals(userRole)) {
+        boolean isAdmin = "ADMIN".equals(userRole);
+        if (userId != null && !isAdmin) {
             OrderResponse existingOrder = orderService.getOrderById(orderId);
             if (!existingOrder.getUserId().equals(userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }
 
-        String reason = request.get("reason");
-        OrderResponse order = orderService.cancelOrder(orderId, reason);
+        String reason = request != null ? request.get("reason") : "User requested cancellation";
+        OrderResponse order = orderService.cancelOrder(orderId, reason, isAdmin);
 
         logger.info("Order cancelled successfully: {}", orderId);
         return ResponseEntity.ok(order);
@@ -295,33 +296,8 @@ public class OrderController {
 
         try {
             String paymentStatus = (String) paymentUpdate.get("status");
-            OrderStatusUpdateRequest statusUpdate = new OrderStatusUpdateRequest();
-
-            switch (paymentStatus) {
-                case "COMPLETED" -> {
-                    statusUpdate.setStatus(OrderStatus.CONFIRMED);
-                    statusUpdate.setNotes("Payment completed successfully");
-                }
-                case "FAILED" -> {
-                    statusUpdate.setStatus(OrderStatus.CANCELLED);
-                    // reason property is not available on OrderStatusUpdateRequest, we should map notes instead?
-                    // wait, order service uses "reason" or "notes"? 
-                    // Let me use "notes" since OrderStatusUpdateRequest has setNotes
-                    statusUpdate.setNotes("Payment failed: " + paymentUpdate.get("gatewayResponse"));
-                }
-                case "CANCELLED" -> {
-                    statusUpdate.setStatus(OrderStatus.CANCELLED);
-                    statusUpdate.setNotes("Payment cancelled");
-                }
-                default -> {
-                    logger.info("Payment status {} for order {} - no order status change needed",
-                            paymentStatus, orderId);
-                }
-            }
-
-            if (statusUpdate.getStatus() != null) {
-                orderService.updateOrderStatus(orderId, statusUpdate);
-            }
+            String notes = paymentUpdate.get("gatewayResponse") != null ? (String) paymentUpdate.get("gatewayResponse") : "Payment status update";
+            orderService.updatePaymentStatus(orderId, paymentStatus, notes);
 
             return ResponseEntity.ok(new MessageResponse("Payment status updated"));
 

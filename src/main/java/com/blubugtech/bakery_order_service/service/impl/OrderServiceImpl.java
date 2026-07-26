@@ -71,6 +71,10 @@ public class OrderServiceImpl implements OrderService {
             order.setDeliveryDate(request.getDeliveryDate());
             order.setSpecialInstructions(request.getSpecialInstructions());
             order.setDiscountCode(request.getDiscountCode());
+            if (request.getPaymentMethod() != null) {
+                order.setPaymentMethod(request.getPaymentMethod());
+            }
+            order.setPaymentStatus("PENDING");
 
             for (OrderItemRequest itemRequest : request.getItems()) {
                 OrderItem orderItem = createOrderItem(order, itemRequest);
@@ -159,14 +163,35 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponse cancelOrder(UUID orderId, String reason) {
+    public OrderResponse updatePaymentStatus(UUID orderId, String paymentStatus, String notes) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderServiceException("Order not found with ID: " + orderId));
 
-        if (!order.canBeCancelled()) {
-            throw new OrderServiceException("Order cannot be cancelled in current status: " + order.getStatus());
+        order.setPaymentStatus(paymentStatus);
+        if ("COMPLETED".equalsIgnoreCase(paymentStatus) || "SUCCESS".equalsIgnoreCase(paymentStatus) || "PAID".equalsIgnoreCase(paymentStatus)) {
+            if ("CASH".equalsIgnoreCase(order.getPaymentMethod()) || "COD".equalsIgnoreCase(order.getPaymentMethod())) {
+                order.setPaymentMethod("CARD");
+            }
+            if (order.getStatus() == OrderStatus.PENDING) {
+                order.setStatus(OrderStatus.CONFIRMED);
+                handleStatusTransition(order, OrderStatus.PENDING, OrderStatus.CONFIRMED, notes);
+            }
+        }
+        Order updatedOrder = orderRepository.save(order);
+        publishOrderEvent(updatedOrder, "PAYMENT_STATUS_UPDATED");
+        return orderMapper.toResponse(updatedOrder);
+    }
+
+    @Override
+    public OrderResponse cancelOrder(UUID orderId, String reason, boolean isAdmin) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderServiceException("Order not found with ID: " + orderId));
+
+        if (!order.canBeCancelled(isAdmin)) {
+            throw new OrderServiceException("Order cannot be cancelled in current status or payment state: " + order.getStatus() + " (payment: " + order.getPaymentStatus() + ")");
         }
 
+        OrderStatus oldStatus = order.getStatus();
         order.setStatus(OrderStatus.CANCELLED);
         order.setCancelledAt(LocalDateTime.now());
         order.setCancellationReason(reason);
@@ -177,6 +202,11 @@ public class OrderServiceImpl implements OrderService {
         publishOrderEvent(cancelledOrder, "CANCELLED");
 
         return orderMapper.toResponse(cancelledOrder);
+    }
+
+    @Override
+    public OrderResponse cancelOrder(UUID orderId, String reason) {
+        return cancelOrder(orderId, reason, false);
     }
 
     @Override

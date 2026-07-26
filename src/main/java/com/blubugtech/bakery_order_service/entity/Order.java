@@ -74,6 +74,12 @@ public class Order {
     @Size(max = 1000, message = "Special instructions must not exceed 1000 characters")
     private String specialInstructions;
 
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod = "CARD";
+
+    @Column(name = "payment_status", length = 50)
+    private String paymentStatus = "PENDING";
+
     // Order Items
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @BatchSize(size = 50)
@@ -173,8 +179,19 @@ public class Order {
         return orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
     }
 
+    public boolean canBeCancelled(boolean isAdmin) {
+        if (status == OrderStatus.DELIVERED || status == OrderStatus.CANCELLED) {
+            return false;
+        }
+        if (isAdmin) {
+            return true;
+        }
+        boolean isPaymentMade = "COMPLETED".equalsIgnoreCase(paymentStatus) || "PAID".equalsIgnoreCase(paymentStatus);
+        return (status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED) && !isPaymentMade;
+    }
+
     public boolean canBeCancelled() {
-        return status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED;
+        return canBeCancelled(false);
     }
 
     public boolean canBeModified() {
