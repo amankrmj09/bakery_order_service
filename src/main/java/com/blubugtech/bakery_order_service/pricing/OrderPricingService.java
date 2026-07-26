@@ -42,7 +42,7 @@ public class OrderPricingService {
     }
 
     private void setDeliveryFee(Order order) {
-        if (order.getDeliveryType() == com.blubugtech.bakery_order_service.enums.DeliveryType.DELIVERY) {
+        if (DeliveryType.DELIVERY.equals(order.getDeliveryType())) {
             order.setDeliveryFee(new BigDecimal("5.00")); // Fixed delivery fee for now
         } else {
             order.setDeliveryFee(BigDecimal.ZERO);
