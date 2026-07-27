@@ -294,6 +294,7 @@ public class OrderServiceImpl implements OrderService {
             }
             case DELIVERED -> {
                 order.setCompletedAt(now);
+                statisticsGateway.decrementOrders();
                 try {
                     statisticsGateway.addRevenue(new RevenuePayload(order.getTotalAmount()));
                 } catch (Exception e) {
