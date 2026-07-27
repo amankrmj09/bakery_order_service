@@ -108,6 +108,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT o FROM Order o " +
             "WHERE LOWER(o.customerName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(o.customerEmail) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "ORDER BY o.createdAt DESC")
     List<Order> searchByCustomerInfo(@Param("searchTerm") String searchTerm);
 

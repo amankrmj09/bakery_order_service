@@ -185,6 +185,15 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping("/admin/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<OrderResponse>> searchOrdersAdmin(@RequestParam String query) {
+        logger.info("Admin search orders request received with query: {}", query);
+        List<OrderResponse> orders = orderService.searchOrders(query);
+        logger.info("Admin search returned {} orders", orders.size());
+        return ResponseEntity.ok(orders);
+    }
+
     @GetMapping("/recent")
     public ResponseEntity<List<OrderResponse>> getRecentOrders(
             @RequestParam(defaultValue = "7") int days) {
