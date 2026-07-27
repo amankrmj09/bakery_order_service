@@ -201,6 +201,10 @@ public class OrderServiceImpl implements OrderService {
         order.setCancelledAt(LocalDateTime.now());
         order.setCancellationReason(reason);
 
+        if (oldStatus == OrderStatus.CONFIRMED || oldStatus == OrderStatus.PREPARING || oldStatus == OrderStatus.READY || oldStatus == OrderStatus.OUT_FOR_DELIVERY) {
+            statisticsGateway.decrementOrders();
+        }
+
         inventoryService.releaseStockForOrder(order);
 
         Order cancelledOrder = orderRepository.save(order);
@@ -267,11 +271,17 @@ public class OrderServiceImpl implements OrderService {
 
     private void handleStatusTransition(Order order, OrderStatus oldStatus, OrderStatus newStatus, String reason) {
         LocalDateTime now = LocalDateTime.now();
+
+        if (oldStatus == OrderStatus.PENDING && 
+           (newStatus == OrderStatus.CONFIRMED || newStatus == OrderStatus.PREPARING || 
+            newStatus == OrderStatus.READY || newStatus == OrderStatus.OUT_FOR_DELIVERY)) {
+            statisticsGateway.incrementOrders();
+        }
+
         switch (newStatus) {
             case CONFIRMED -> {
                 order.setConfirmedAt(now);
                 inventoryService.consumeStockForOrder(order);
-                statisticsGateway.incrementOrders();
                 
                 // Generate and publish invoice event
                 String invoiceUrl = "https://shahs-bakery.com/invoices/INV-" + order.getOrderNumber() + ".pdf";
