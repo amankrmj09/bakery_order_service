@@ -364,6 +364,7 @@ public class OrderServiceImpl implements OrderService {
                     .totalAmount(order.getTotalAmount())
                     .status(order.getStatus().name())
                     .deliveryAddress(order.getDeliveryAddress())
+                    .cancellationReason(order.getCancellationReason())
                     .timestamp(LocalDateTime.now())
                     .build();
             OrderEvent event = OrderEvent.builder()
