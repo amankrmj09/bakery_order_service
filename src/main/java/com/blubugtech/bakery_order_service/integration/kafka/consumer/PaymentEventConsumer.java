@@ -1,6 +1,6 @@
 package com.blubugtech.bakery_order_service.integration.kafka.consumer;
 
-import com.blubugtech.common.event.PaymentEvent;
+import org.blubakery.bakery_common_libs.event.PaymentEvent;
 import com.blubugtech.bakery_order_service.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ public class PaymentEventConsumer {
         this.orderService = orderService;
     }
 
-    @KafkaListener(topics = "${kafka.topic.payment-events}", groupId = "order-service-group")
+    @KafkaListener(topics = org.blubakery.bakery_common_libs.constants.KafkaTopics.PAYMENTS_TOPIC, groupId = "order-service-group")
     public void consume(PaymentEvent event) {
         logger.info("Received PaymentEvent for Order ID: {} with status: {}", event.getPayload().getOrderId(), event.getPayload().getStatus());
         

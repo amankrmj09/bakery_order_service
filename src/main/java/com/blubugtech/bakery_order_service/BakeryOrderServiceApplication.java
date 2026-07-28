@@ -6,9 +6,9 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 import org.springframework.context.annotation.Import;
-import com.blubugtech.common.security.MethodSecurityConfig;
-import com.blubugtech.common.security.FeignClientInterceptor;
-import com.blubugtech.common.kafka.KafkaConfig;
+import org.blubakery.bakery_common_libs.security.MethodSecurityConfig;
+import org.blubakery.bakery_common_libs.security.FeignClientInterceptor;
+import org.blubakery.bakery_common_libs.kafka.KafkaConfig;
 
 @SpringBootApplication
 @EnableDiscoveryClient

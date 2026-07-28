@@ -2,7 +2,7 @@ package com.blubugtech.bakery_order_service.gateway.impl;
 
 import com.blubugtech.bakery_order_service.client.statistics.InternalStatsClient;
 import com.blubugtech.bakery_order_service.gateway.StatisticsGateway;
-import com.blubugtech.common.contract.messaging.RevenuePayload;
+import org.blubakery.bakery_common_libs.contract.messaging.RevenuePayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

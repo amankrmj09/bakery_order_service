@@ -1,6 +1,6 @@
 package com.blubugtech.bakery_order_service.integration.kafka.producer;
 
-import com.blubugtech.common.event.OrderEvent;
+import org.blubakery.bakery_common_libs.event.OrderEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -13,10 +13,10 @@ public class OrderEventPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     
     @org.springframework.beans.factory.annotation.Value("${kafka.topic.order-events}")
-    private String orderEventsTopic;
+    
 
     @org.springframework.beans.factory.annotation.Value("${kafka.topic.payment-requests}")
-    private String paymentRequestsTopic;
+    
     
     public OrderEventPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -24,16 +24,16 @@ public class OrderEventPublisher {
     
     public void publishOrderCreated(OrderEvent event) {
         logger.info("Publishing OrderCreated event for order ID: {}", event.getPayload().getOrderId());
-        kafkaTemplate.send(orderEventsTopic, event.getPayload().getOrderId().toString(), event);
+        kafkaTemplate.send(org.blubakery.bakery_common_libs.constants.KafkaTopics.ORDERS_TOPIC, event.getPayload().getOrderId().toString(), event);
     }
     
     public void publishOrderStatusUpdated(OrderEvent event) {
         logger.info("Publishing OrderStatusUpdated event for order ID: {}", event.getPayload().getOrderId());
-        kafkaTemplate.send(orderEventsTopic, event.getPayload().getOrderId().toString(), event);
+        kafkaTemplate.send(org.blubakery.bakery_common_libs.constants.KafkaTopics.ORDERS_TOPIC, event.getPayload().getOrderId().toString(), event);
     }
 
     public void publishPaymentRequested(com.blubugtech.common.event.PaymentRequestedEvent event) {
         logger.info("Publishing PaymentRequestedEvent for order ID: {}", event.getPayload().getOrderId());
-        kafkaTemplate.send(paymentRequestsTopic, event.getPayload().getOrderId().toString(), event);
+        kafkaTemplate.send(org.blubakery.bakery_common_libs.constants.KafkaTopics.PAYMENT_REQUESTS_TOPIC, event.getPayload().getOrderId().toString(), event);
     }
 }

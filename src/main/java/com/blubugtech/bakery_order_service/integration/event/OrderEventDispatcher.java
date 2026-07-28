@@ -1,6 +1,6 @@
 package com.blubugtech.bakery_order_service.integration.event;
 
-import com.blubugtech.common.event.OrderEvent;
+import org.blubakery.bakery_common_libs.event.OrderEvent;
 import com.blubugtech.bakery_order_service.integration.kafka.producer.OrderEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.blubugtech.bakery_order_service.gateway;
 
-import com.blubugtech.common.contract.messaging.RevenuePayload;
+import org.blubakery.bakery_common_libs.contract.messaging.RevenuePayload;
 
 public interface StatisticsGateway {
     void incrementOrders();

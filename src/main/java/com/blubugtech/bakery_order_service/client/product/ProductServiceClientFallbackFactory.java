@@ -1,9 +1,9 @@
 package com.blubugtech.bakery_order_service.client.product;
 
-import com.blubugtech.common.contract.feign.Product;
-import com.blubugtech.common.contract.feign.StockAvailability;
-import com.blubugtech.common.contract.messaging.StockOperationRequestPayload;
-import com.blubugtech.common.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.bakery_common_libs.contract.feign.Product;
+import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
+import org.blubakery.bakery_common_libs.contract.messaging.StockOperationRequestPayload;
+import org.blubakery.bakery_common_libs.contract.messaging.StockOperationResponsePayload;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
