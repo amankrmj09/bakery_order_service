@@ -72,6 +72,7 @@ public class OrderServiceImpl implements OrderService {
             order.setDeliveryDate(request.getDeliveryDate());
             order.setSpecialInstructions(request.getSpecialInstructions());
             order.setDiscountCode(request.getDiscountCode());
+            order.setDiscountAmount(request.getDiscountAmount() != null ? request.getDiscountAmount() : BigDecimal.ZERO);
             if (request.getPaymentMethod() != null) {
                 order.setPaymentMethod(request.getPaymentMethod());
             }

@@ -50,6 +50,9 @@ public class OrderRequest {
     @Size(max = 50, message = "Discount code must not exceed 50 characters")
     private String discountCode;
 
+    @DecimalMin(value = "0.00", message = "Discount amount cannot be negative")
+    private BigDecimal discountAmount;
+
     @NotNull(message = "Payment method is required")
     private String paymentMethod; // "CASH", "CARD", "DIGITAL_WALLET", etc.
 
