@@ -50,6 +50,9 @@ public class OrderRequest {
     @Size(max = 50, message = "Discount code must not exceed 50 characters")
     private String discountCode;
 
+    @Size(min = 3, max = 3, message = "Currency code must be exactly 3 characters")
+    private String currencyCode = "INR";
+
     @DecimalMin(value = "0.00", message = "Discount amount cannot be negative")
     private BigDecimal discountAmount;
 
@@ -60,7 +63,7 @@ public class OrderRequest {
     @DecimalMin(value = "0.01", message = "Payment amount must be greater than zero")
     private BigDecimal paymentAmount;
 
-    private String currencyCode = "USD";
+
 
     // Card payment details (optional)
     private String cardLastFour;
