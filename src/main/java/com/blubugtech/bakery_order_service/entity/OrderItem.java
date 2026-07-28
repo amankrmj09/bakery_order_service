@@ -102,11 +102,11 @@ public class OrderItem {
             BigDecimal totalDiscount = discountPerItem.multiply(BigDecimal.valueOf(quantity));
             subtotal = subtotal.subtract(totalDiscount);
         }
-        return subtotal;
+        return subtotal.setScale(2, java.math.RoundingMode.HALF_UP);
     }
 
     public BigDecimal getEffectiveUnitPrice() {
-        return unitPrice.subtract(discountPerItem != null ? discountPerItem : BigDecimal.ZERO);
+        return unitPrice.subtract(discountPerItem != null ? discountPerItem : BigDecimal.ZERO).setScale(2, java.math.RoundingMode.HALF_UP);
     }
 
     public boolean hasDiscount() {
