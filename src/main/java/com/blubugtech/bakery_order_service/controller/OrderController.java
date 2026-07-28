@@ -137,6 +137,24 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping("/user/{userId}/active")
+    public ResponseEntity<List<OrderResponse>> getActiveOrdersByUserId(
+            @PathVariable UUID userId,
+            @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+
+        logger.info("Get active orders by user ID request received: {}", userId);
+
+        if (requestUserId != null && !"ADMIN".equals(userRole) && !userId.equals(requestUserId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<OrderResponse> orders = orderService.getActiveOrdersByUserId(userId);
+
+        logger.info("Retrieved {} active orders for user", orders.size());
+        return ResponseEntity.ok(orders);
+    }
+
     @GetMapping("/user/{userId}/paginated")
     public ResponseEntity<PagedModel<OrderResponse>> getOrdersByUserIdWithPagination(
             @PathVariable UUID userId,

@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -122,6 +123,17 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersByUserId(UUID userId) {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(orderMapper::toResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getActiveOrdersByUserId(UUID userId) {
+        List<OrderStatus> activeStatuses = Arrays.asList(
+                OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING,
+                OrderStatus.READY, OrderStatus.OUT_FOR_DELIVERY
+        );
+        return orderRepository.findByUserIdAndStatusIn(userId, activeStatuses).stream()
                 .map(orderMapper::toResponse).collect(Collectors.toList());
     }
 

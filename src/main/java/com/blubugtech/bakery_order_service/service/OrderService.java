@@ -20,6 +20,7 @@ public interface OrderService {
     OrderResponse getOrderById(UUID orderId);
     Optional<OrderResponse> getOrderByOrderNumber(String orderNumber);
     List<OrderResponse> getOrdersByUserId(UUID userId);
+    List<OrderResponse> getActiveOrdersByUserId(UUID userId);
     Page<OrderResponse> getOrdersByUserIdWithPagination(UUID userId, Pageable pageable);
     List<OrderResponse> getOrdersByStatus(OrderStatus status);
     Page<OrderResponse> getAllOrders(Pageable pageable);
