@@ -12,7 +12,7 @@ import org.blubakery.bakery_common_libs.kafka.KafkaConfig;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@Import({MethodSecurityConfig.class, FeignClientInterceptor.class, KafkaConfig.class, com.blubugtech.common.feign.FeignConfig.class})
+@Import({MethodSecurityConfig.class, FeignClientInterceptor.class, KafkaConfig.class, org.blubakery.bakery_common_libs.feign.FeignConfig.class})
 @EnableFeignClients
 public class BakeryOrderServiceApplication {
 
