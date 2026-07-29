@@ -1,9 +1,9 @@
 package com.blubugtech.bakery_order_service.gateway;
 
-import org.blubakery.bakery_common_libs.contract.feign.Product;
-import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationRequestPayload;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.common.feign.contract.feign.Product;
+import org.blubakery.common.feign.contract.feign.StockAvailability;
+import org.blubakery.common.messaging.contract.messaging.StockOperationRequestPayload;
+import org.blubakery.common.messaging.contract.messaging.StockOperationResponsePayload;
 
 import java.util.UUID;
 

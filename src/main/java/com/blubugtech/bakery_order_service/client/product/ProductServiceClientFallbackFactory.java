@@ -1,11 +1,13 @@
 package com.blubugtech.bakery_order_service.client.product;
 
 import lombok.extern.slf4j.Slf4j;
-import org.blubakery.bakery_common_libs.contract.feign.Product;
-import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationRequestPayload;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.common.feign.contract.feign.Product;
+import org.blubakery.common.feign.contract.feign.StockAvailability;
+import org.blubakery.common.messaging.contract.messaging.StockOperationRequestPayload;
+import org.blubakery.common.messaging.contract.messaging.StockOperationResponsePayload;
 
+import org.blubakery.common.feign.exception.common.FeignClientException;
+import org.blubakery.common.core.exception.common.ServiceUnavailableException;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -20,48 +22,37 @@ public class ProductServiceClientFallbackFactory implements FallbackFactory<Prod
         return new ProductServiceClient() {
             @Override
             public Product getProductById(UUID productId) {
-                
+                if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for getProductById: {}", productId, cause);
-                return null;
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public StockAvailability checkStockAvailability(UUID productId, Integer quantity) {
-                
+                if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for checkStockAvailability: {} for qty {}", productId, quantity, cause);
-                StockAvailability dto = new StockAvailability();
-                dto.setSufficient(false);
-                dto.setAvailableQuantity(0);
-                return dto;
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public StockOperationResponsePayload reserveStock(UUID productId, StockOperationRequestPayload request) {
-                
+                if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for reserveStock: {}", productId, cause);
-                return createErrorResponse(productId);
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public StockOperationResponsePayload releaseReservedStock(UUID productId, StockOperationRequestPayload request) {
-                
+                if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for releaseReservedStock: {}", productId, cause);
-                return createErrorResponse(productId);
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public StockOperationResponsePayload consumeStock(UUID productId, StockOperationRequestPayload request) {
-                
+                if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for consumeStock: {}", productId, cause);
-                return createErrorResponse(productId);
-            }
-
-            private StockOperationResponsePayload createErrorResponse(UUID productId) {
-                StockOperationResponsePayload dto = new StockOperationResponsePayload();
-                dto.setProductId(productId);
-                dto.setSuccess(false);
-                dto.setMessage("Service unavailable");
-                return dto;
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
         };
     }

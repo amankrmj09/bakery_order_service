@@ -1,7 +1,7 @@
 package com.blubugtech.bakery_order_service.integration.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.blubakery.bakery_common_libs.event.PaymentEvent;
+import org.blubakery.common.messaging.event.PaymentEvent;
 import com.blubugtech.bakery_order_service.service.OrderService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class PaymentEventConsumer {
         this.orderService = orderService;
     }
 
-    @KafkaListener(topics = org.blubakery.bakery_common_libs.constants.KafkaTopics.PAYMENTS_TOPIC, groupId = "order-service-group")
+    @KafkaListener(topics = org.blubakery.common.messaging.constants.KafkaTopics.PAYMENTS_TOPIC, groupId = "order-service-group")
     public void consume(PaymentEvent event) {
         log.info("Received PaymentEvent for Order ID: {} with status: {}", event.getPayload().getOrderId(), event.getPayload().getStatus());
         
