@@ -1,8 +1,7 @@
 package com.blubugtech.bakery_order_service.exception;
 
+import lombok.extern.slf4j.Slf4j;
  
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -19,13 +18,12 @@ import java.util.Map;
 import org.blubakery.bakery_common_libs.exception.handler.BaseExceptionHandler;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler extends BaseExceptionHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(OrderServiceException.class)
     public ResponseEntity<ErrorResponse> handleOrderServiceException(OrderServiceException ex, WebRequest request) {
-        logger.error("Order service error: {}", ex.getMessage());
+        log.error("Order service error: {}", ex.getMessage());
 
         ErrorResponse error = new ErrorResponse(
             "ORDER_SERVICE_ERROR",

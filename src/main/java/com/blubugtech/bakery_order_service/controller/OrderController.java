@@ -1,5 +1,6 @@
 package com.blubugtech.bakery_order_service.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.blubugtech.bakery_order_service.dto.order.OrderRequest;
 import com.blubugtech.bakery_order_service.dto.order.OrderResponse;
 import com.blubugtech.bakery_order_service.dto.order.OrderStatusUpdateRequest;
@@ -11,8 +12,6 @@ import org.blubakery.bakery_common_libs.contract.feign.MessageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,9 +32,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/orders")
 @Tag(name = "Order", description = "Order Management APIs")
+@Slf4j
 public class OrderController {
-
-    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderService orderService;
 
@@ -49,7 +47,7 @@ public class OrderController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Create order request received for user: {}", request.getUserId());
+        log.info("Create order request received for user: {}", request.getUserId());
 
         if (userId != null) {
             request.setUserId(userId);
@@ -57,7 +55,7 @@ public class OrderController {
 
         OrderResponse order = orderService.createOrder(request);
 
-        logger.info("Order created successfully: {}", order.getOrderNumber());
+        log.info("Order created successfully: {}", order.getOrderNumber());
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
@@ -70,14 +68,14 @@ public class OrderController {
             @RequestParam(defaultValue = "DESC") String sortDir,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get all orders request received (page: {}, size: {})", page, size);
+        log.info("Get all orders request received (page: {}, size: {})", page, size);
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<OrderResponse> orders = orderService.getAllOrders(pageable);
 
-        logger.info("Retrieved {} orders (page {} of {})", orders.getContent().size(),
+        log.info("Retrieved {} orders (page {} of {})", orders.getContent().size(),
                 page + 1, orders.getTotalPages());
         return ResponseEntity.ok(new PagedModel<>(orders));
     }
@@ -88,7 +86,7 @@ public class OrderController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get order by ID request received: {}", orderId);
+        log.info("Get order by ID request received: {}", orderId);
 
         OrderResponse order = orderService.getOrderById(orderId);
 
@@ -96,7 +94,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        logger.info("Order retrieved: {}", order.getOrderNumber());
+        log.info("Order retrieved: {}", order.getOrderNumber());
         return ResponseEntity.ok(order);
     }
 
@@ -106,14 +104,14 @@ public class OrderController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get order by number request received: {}", orderNumber);
+        log.info("Get order by number request received: {}", orderNumber);
 
         return orderService.getOrderByOrderNumber(orderNumber)
                 .map(order -> {
                     if (userId != null && !"ADMIN".equals(userRole) && !order.getUserId().equals(userId)) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).<OrderResponse>build();
                     }
-                    logger.info("Order found: {}", orderNumber);
+                    log.info("Order found: {}", orderNumber);
                     return ResponseEntity.ok(order);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -125,7 +123,7 @@ public class OrderController {
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get orders by user ID request received: {}", userId);
+        log.info("Get orders by user ID request received: {}", userId);
 
         if (requestUserId != null && !"ADMIN".equals(userRole) && !userId.equals(requestUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -133,7 +131,7 @@ public class OrderController {
 
         List<OrderResponse> orders = orderService.getOrdersByUserId(userId);
 
-        logger.info("Retrieved {} orders for user", orders.size());
+        log.info("Retrieved {} orders for user", orders.size());
         return ResponseEntity.ok(orders);
     }
 
@@ -143,7 +141,7 @@ public class OrderController {
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get active orders by user ID request received: {}", userId);
+        log.info("Get active orders by user ID request received: {}", userId);
 
         if (requestUserId != null && !"ADMIN".equals(userRole) && !userId.equals(requestUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -151,7 +149,7 @@ public class OrderController {
 
         List<OrderResponse> orders = orderService.getActiveOrdersByUserId(userId);
 
-        logger.info("Retrieved {} active orders for user", orders.size());
+        log.info("Retrieved {} active orders for user", orders.size());
         return ResponseEntity.ok(orders);
     }
 
@@ -165,7 +163,7 @@ public class OrderController {
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get orders by user ID with pagination: {}, page: {}, size: {}", userId, page, size);
+        log.info("Get orders by user ID with pagination: {}, page: {}, size: {}", userId, page, size);
 
         if (requestUserId != null && !"ADMIN".equals(userRole) && !userId.equals(requestUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -176,7 +174,7 @@ public class OrderController {
 
         Page<OrderResponse> orders = orderService.getOrdersByUserIdWithPagination(userId, pageable);
 
-        logger.info("Retrieved {} orders for user (page {} of {})", orders.getContent().size(),
+        log.info("Retrieved {} orders for user (page {} of {})", orders.getContent().size(),
                 page + 1, orders.getTotalPages());
         return ResponseEntity.ok(new PagedModel<>(orders));
     }
@@ -185,41 +183,41 @@ public class OrderController {
     public ResponseEntity<List<OrderResponse>> getOrdersByStatus(
             @PathVariable OrderStatus status) {
 
-        logger.info("Get orders by status request received: {}", status);
+        log.info("Get orders by status request received: {}", status);
 
         List<OrderResponse> orders = orderService.getOrdersByStatus(status);
 
-        logger.info("Retrieved {} orders with status {}", orders.size(), status);
+        log.info("Retrieved {} orders with status {}", orders.size(), status);
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<OrderResponse>> searchOrders(@RequestParam String query) {
-        logger.info("Search orders request received with query: {}", query);
+        log.info("Search orders request received with query: {}", query);
 
         List<OrderResponse> orders = orderService.searchOrders(query);
 
-        logger.info("Search returned {} orders", orders.size());
+        log.info("Search returned {} orders", orders.size());
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/admin/search")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponse>> searchOrdersAdmin(@RequestParam String query) {
-        logger.info("Admin search orders request received with query: {}", query);
+        log.info("Admin search orders request received with query: {}", query);
         List<OrderResponse> orders = orderService.searchOrders(query);
-        logger.info("Admin search returned {} orders", orders.size());
+        log.info("Admin search returned {} orders", orders.size());
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/recent")
     public ResponseEntity<List<OrderResponse>> getRecentOrders(
             @RequestParam(defaultValue = "7") int days) {
-        logger.info("Get recent orders request received (last {} days)", days);
+        log.info("Get recent orders request received (last {} days)", days);
 
         List<OrderResponse> orders = orderService.getRecentOrders(days);
 
-        logger.info("Retrieved {} recent orders", orders.size());
+        log.info("Retrieved {} recent orders", orders.size());
         return ResponseEntity.ok(orders);
     }
 
@@ -234,12 +232,12 @@ public class OrderController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
-        logger.info("Advanced filter search request received");
+        log.info("Advanced filter search request received");
 
         List<OrderResponse> orders = orderService.getOrdersWithFilters(
                 userId, status, deliveryType, paymentMethod, minAmount, maxAmount, startDate, endDate);
 
-        logger.info("Filter search returned {} orders", orders.size());
+        log.info("Filter search returned {} orders", orders.size());
         return ResponseEntity.ok(orders);
     }
 
@@ -250,7 +248,7 @@ public class OrderController {
             @Valid @RequestBody OrderStatusUpdateRequest request,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Update order status request received: {} to {}", orderId, request.getStatus());
+        log.info("Update order status request received: {} to {}", orderId, request.getStatus());
 
         if (!"ADMIN".equals(userRole) && !"BAKER".equals(userRole)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -258,7 +256,7 @@ public class OrderController {
 
         OrderResponse order = orderService.updateOrderStatus(orderId, request);
 
-        logger.info("Order status updated successfully: {}", orderId);
+        log.info("Order status updated successfully: {}", orderId);
         return ResponseEntity.ok(order);
     }
 
@@ -270,7 +268,7 @@ public class OrderController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Cancel order request received: {}", orderId);
+        log.info("Cancel order request received: {}", orderId);
 
         boolean isAdmin = "ADMIN".equals(userRole);
         if (userId != null && !isAdmin) {
@@ -288,7 +286,7 @@ public class OrderController {
         }
         OrderResponse order = orderService.cancelOrder(orderId, reason, isAdmin);
 
-        logger.info("Order cancelled successfully: {}", orderId);
+        log.info("Order cancelled successfully: {}", orderId);
         return ResponseEntity.ok(order);
     }
 
@@ -299,7 +297,7 @@ public class OrderController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get order statistics request received");
+        log.info("Get order statistics request received");
 
         if (!"ADMIN".equals(userRole)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -314,7 +312,7 @@ public class OrderController {
 
         Map<String, Object> statistics = orderService.getOrderStatistics(startDate, endDate);
 
-        logger.info("Order statistics retrieved");
+        log.info("Order statistics retrieved");
         return ResponseEntity.ok(statistics);
     }
 
@@ -324,7 +322,7 @@ public class OrderController {
             @PathVariable UUID orderId,
             @RequestBody Map<String, Object> paymentUpdate) {
 
-        logger.info("Payment status update received for order: {} - Status: {}",
+        log.info("Payment status update received for order: {} - Status: {}",
                 orderId, paymentUpdate.get("status"));
 
         try {
@@ -335,7 +333,7 @@ public class OrderController {
             return ResponseEntity.ok(new MessageResponse("Payment status updated"));
 
         } catch (Exception e) {
-            logger.error("Failed to update order payment status: {}", e.getMessage());
+            log.error("Failed to update order payment status: {}", e.getMessage());
             return ResponseEntity.ok(new MessageResponse("Payment status acknowledged")); 
         }
     }

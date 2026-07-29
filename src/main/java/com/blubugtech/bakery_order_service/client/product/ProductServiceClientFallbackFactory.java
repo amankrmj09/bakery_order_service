@@ -1,21 +1,19 @@
 package com.blubugtech.bakery_order_service.client.product;
 
+import lombok.extern.slf4j.Slf4j;
 import org.blubakery.bakery_common_libs.contract.feign.Product;
 import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
 import org.blubakery.bakery_common_libs.contract.messaging.StockOperationRequestPayload;
 import org.blubakery.bakery_common_libs.contract.messaging.StockOperationResponsePayload;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @Component
+@Slf4j
 public class ProductServiceClientFallbackFactory implements FallbackFactory<ProductServiceClient> {
-
-    private static final Logger logger = LoggerFactory.getLogger(ProductServiceClientFallbackFactory.class);
 
     @Override
     public ProductServiceClient create(Throwable cause) {
@@ -23,14 +21,14 @@ public class ProductServiceClientFallbackFactory implements FallbackFactory<Prod
             @Override
             public Product getProductById(UUID productId) {
                 
-                logger.error("Fallback triggered for getProductById: {}", productId, cause);
+                log.error("Fallback triggered for getProductById: {}", productId, cause);
                 return null;
             }
 
             @Override
             public StockAvailability checkStockAvailability(UUID productId, Integer quantity) {
                 
-                logger.error("Fallback triggered for checkStockAvailability: {} for qty {}", productId, quantity, cause);
+                log.error("Fallback triggered for checkStockAvailability: {} for qty {}", productId, quantity, cause);
                 StockAvailability dto = new StockAvailability();
                 dto.setSufficient(false);
                 dto.setAvailableQuantity(0);
@@ -40,21 +38,21 @@ public class ProductServiceClientFallbackFactory implements FallbackFactory<Prod
             @Override
             public StockOperationResponsePayload reserveStock(UUID productId, StockOperationRequestPayload request) {
                 
-                logger.error("Fallback triggered for reserveStock: {}", productId, cause);
+                log.error("Fallback triggered for reserveStock: {}", productId, cause);
                 return createErrorResponse(productId);
             }
 
             @Override
             public StockOperationResponsePayload releaseReservedStock(UUID productId, StockOperationRequestPayload request) {
                 
-                logger.error("Fallback triggered for releaseReservedStock: {}", productId, cause);
+                log.error("Fallback triggered for releaseReservedStock: {}", productId, cause);
                 return createErrorResponse(productId);
             }
 
             @Override
             public StockOperationResponsePayload consumeStock(UUID productId, StockOperationRequestPayload request) {
                 
-                logger.error("Fallback triggered for consumeStock: {}", productId, cause);
+                log.error("Fallback triggered for consumeStock: {}", productId, cause);
                 return createErrorResponse(productId);
             }
 
