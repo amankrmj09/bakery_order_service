@@ -206,7 +206,7 @@ public class Order {
         return status == OrderStatus.CANCELLED;
     }
 
-    public void calculateTotals(BigDecimal taxRate) {
+    public void calculateTotals() {
         // Calculate subtotal from items
         this.subtotal = orderItems.stream()
                 .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
@@ -217,13 +217,9 @@ public class Order {
         BigDecimal discount = discountAmount != null ? discountAmount : BigDecimal.ZERO;
         BigDecimal discountedSubtotal = subtotal.subtract(discount).setScale(2, java.math.RoundingMode.HALF_UP);
 
-        // Calculate tax
-        this.taxAmount = discountedSubtotal.multiply(taxRate)
-                .setScale(2, java.math.RoundingMode.HALF_UP);
-
-        // Calculate total
+        // Calculate total (tax is now handled at product level or elsewhere, so we just add delivery)
         BigDecimal delivery = deliveryFee != null ? deliveryFee : BigDecimal.ZERO;
-        this.totalAmount = discountedSubtotal.add(taxAmount).add(delivery)
+        this.totalAmount = discountedSubtotal.add(delivery)
                 .setScale(2, java.math.RoundingMode.HALF_UP);
     }
 

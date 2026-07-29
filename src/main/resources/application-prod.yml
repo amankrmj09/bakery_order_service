@@ -14,3 +14,10 @@ eureka:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
+
+order:
+  delivery:
+    default-time-minutes: ${ORDER_DELIVERY_TIME:60}
+  limits:
+    max-items-per-order: ${ORDER_MAX_ITEMS:50}
+    max-order-value: ${ORDER_MAX_VALUE:50000.00}

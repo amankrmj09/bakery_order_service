@@ -11,18 +11,15 @@ import java.time.LocalDateTime;
 @Service
 public class OrderPricingService {
 
-    @Value("${order.tax.rate:0.08}")
-    private BigDecimal taxRate;
-
     @Value("${order.delivery.default-time-minutes:60}")
     private Integer defaultDeliveryTimeMinutes;
 
     public void applyPricingAndTiming(Order order, String discountCode) {
         calculatePreparationTime(order);
         applyDiscounts(order, discountCode);
-        order.calculateTotals(taxRate);
+        order.calculateTotals();
         setDeliveryFee(order);
-        order.calculateTotals(taxRate);
+        order.calculateTotals();
     }
 
     private void calculatePreparationTime(Order order) {

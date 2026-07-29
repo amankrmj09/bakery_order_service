@@ -9,3 +9,10 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+order:
+  delivery:
+    default-time-minutes: 60
+  limits:
+    max-items-per-order: 50
+    max-order-value: 50000.00

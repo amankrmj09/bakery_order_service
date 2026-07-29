@@ -36,7 +36,7 @@ public class OrderValidator {
 
     public void validateOrderLimits(Order order) {
         if (order.getTotalAmount().compareTo(maxOrderValue) > 0) {
-            throw new OrderServiceException("Order value exceeds maximum limit of $" + maxOrderValue);
+            throw new OrderServiceException("Order value exceeds maximum limit of ₹" + maxOrderValue);
         }
     }
 }
