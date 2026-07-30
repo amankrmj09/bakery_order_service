@@ -56,6 +56,9 @@ public class OrderRequest {
     @DecimalMin(value = "0.00", message = "Discount amount cannot be negative")
     private BigDecimal discountAmount;
 
+    @DecimalMin(value = "0.00", message = "Tax amount cannot be negative")
+    private BigDecimal taxAmount;
+
     @NotNull(message = "Payment method is required")
     private String paymentMethod; // "CASH", "CARD", "DIGITAL_WALLET", etc.
 

@@ -29,8 +29,13 @@ public class OrderValidator {
     }
 
     public void validatePaymentAmount(OrderRequest request, Order order) {
-        if (request.getPaymentAmount() == null || request.getPaymentAmount().compareTo(order.getTotalAmount()) < 0) {
-            throw new OrderServiceException("Payment amount does not match order total. Please provide the correct amount: " + order.getTotalAmount());
+        if (request.getPaymentAmount() == null) {
+            throw new OrderServiceException("Payment amount is required.");
+        }
+        // Allow a tiny tolerance (0.01) for floating-point rounding between frontend/backend
+        BigDecimal diff = request.getPaymentAmount().subtract(order.getTotalAmount()).abs();
+        if (diff.compareTo(new BigDecimal("0.01")) > 0) {
+            throw new OrderServiceException("Payment amount must match the order total: " + order.getTotalAmount());
         }
     }
 

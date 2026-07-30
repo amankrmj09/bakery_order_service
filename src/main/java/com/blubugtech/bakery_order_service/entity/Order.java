@@ -215,12 +215,17 @@ public class Order {
 
         // Apply discount if any
         BigDecimal discount = discountAmount != null ? discountAmount : BigDecimal.ZERO;
-        BigDecimal discountedSubtotal = subtotal.subtract(discount).setScale(2, java.math.RoundingMode.HALF_UP);
-
-        // Calculate total (tax is now handled at product level or elsewhere, so we just add delivery)
+        BigDecimal tax = taxAmount != null ? taxAmount : BigDecimal.ZERO;
         BigDecimal delivery = deliveryFee != null ? deliveryFee : BigDecimal.ZERO;
-        this.totalAmount = discountedSubtotal.add(delivery)
+
+        // total = subtotal + tax - discount + delivery
+        this.totalAmount = subtotal.add(tax).subtract(discount).add(delivery)
                 .setScale(2, java.math.RoundingMode.HALF_UP);
+
+        // Ensure total is not negative
+        if (this.totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+            this.totalAmount = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
+        }
     }
 
     private String generateOrderNumber() {
