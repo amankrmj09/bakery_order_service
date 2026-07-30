@@ -370,6 +370,7 @@ public class OrderServiceImpl implements OrderService {
 
     private void publishOrderEvent(Order order, String eventType, java.util.Map<String, Object> metadata) {
         try {
+            Boolean cancelledByAdmin = metadata != null && metadata.containsKey("cancelledByAdmin") ? (Boolean) metadata.get("cancelledByAdmin") : null;
             OrderPayload payload = OrderPayload.builder()
                     .orderId(order.getId())
                     .orderNumber(order.getOrderNumber())
@@ -380,6 +381,7 @@ public class OrderServiceImpl implements OrderService {
                     .deliveryAddress(order.getDeliveryAddress())
                     .cancellationReason(order.getCancellationReason())
                     .timestamp(LocalDateTime.now())
+                    .cancelledByAdmin(cancelledByAdmin)
                     .build();
             OrderEvent event = OrderEvent.builder()
                     .eventType(eventType.equals("CREATED") ? "ORDER_CREATED" : "ORDER_STATUS_UPDATED")
