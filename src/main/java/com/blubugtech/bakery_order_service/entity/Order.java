@@ -180,14 +180,13 @@ public class Order {
     }
 
     public boolean canBeCancelled(boolean isAdmin) {
-        if (status == OrderStatus.DELIVERED || status == OrderStatus.CANCELLED) {
+        if (status == OrderStatus.DELIVERED || status == OrderStatus.CANCELLED || status == OrderStatus.OUT_FOR_DELIVERY) {
             return false;
         }
         if (isAdmin) {
             return true;
         }
-        boolean isPaymentMade = "COMPLETED".equalsIgnoreCase(paymentStatus) || "PAID".equalsIgnoreCase(paymentStatus);
-        return (status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED) && !isPaymentMade;
+        return (status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED || status == OrderStatus.PREPARING || status == OrderStatus.READY);
     }
 
     public boolean canBeCancelled() {
