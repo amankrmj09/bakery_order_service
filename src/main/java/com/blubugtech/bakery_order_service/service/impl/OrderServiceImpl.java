@@ -101,9 +101,9 @@ public class OrderServiceImpl implements OrderService {
             return orderMapper.toResponse(savedOrder);
 
         } catch (Exception e) {
-            log.error("Failed to create order for user: {} - {}", request.getUserId(), e.getMessage());
+            log.error("Failed to create order for user: {}", request.getUserId(), e);
             // In a real scenario, compensating transactions for stock would be needed if something failed after reservation
-            throw new OrderServiceException("Failed to create order: " + e.getMessage());
+            throw new OrderServiceException("Failed to create order", e);
         }
     }
 
@@ -341,7 +341,7 @@ public class OrderServiceImpl implements OrderService {
         try {
             productResponse = productGateway.getProductById(itemRequest.getProductId());
         } catch (Exception e) {
-            throw new ProductNotFoundException("Product not found: " + itemRequest.getProductId());
+            throw new ProductNotFoundException("Product not found: " + itemRequest.getProductId(), e);
         }
 
         StockAvailability stockResponse = productGateway.checkStockAvailability(itemRequest.getProductId(), itemRequest.getQuantity());
@@ -395,7 +395,7 @@ public class OrderServiceImpl implements OrderService {
                 orderEventDispatcher.dispatchOrderStatusUpdated(event);
             }
         } catch (Exception ex) {
-            log.error("Failed to publish Order Event ({}) for {}: {}", eventType, order.getId(), ex.getMessage());
+            log.error("Failed to publish Order Event ({}) for {}", eventType, order.getId(), ex);
         }
     }
 }

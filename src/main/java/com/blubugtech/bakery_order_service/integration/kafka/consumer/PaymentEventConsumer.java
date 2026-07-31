@@ -26,7 +26,7 @@ public class PaymentEventConsumer {
             orderService.updatePaymentStatus(event.getPayload().getOrderId(), paymentStatus, "Payment event: " + paymentStatus);
             log.info("Updated order {} payment status to {} due to payment event", event.getPayload().getOrderId(), paymentStatus);
         } catch (Exception e) {
-            log.error("Failed to process payment event: {}", e.getMessage());
+            log.error("Failed to process payment event", e);
         }
     }
 }

@@ -333,7 +333,7 @@ public class OrderController {
             return ResponseEntity.ok(new MessageResponse("Payment status updated"));
 
         } catch (Exception e) {
-            log.error("Failed to update order payment status: {}", e.getMessage());
+            log.error("Failed to update order payment status", e);
             return ResponseEntity.ok(new MessageResponse("Payment status acknowledged")); 
         }
     }

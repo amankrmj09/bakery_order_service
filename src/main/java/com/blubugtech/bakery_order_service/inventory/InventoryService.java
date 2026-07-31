@@ -28,7 +28,7 @@ public class InventoryService {
                     throw new OrderServiceException("Failed to reserve stock for product: " + item.getProductName());
                 }
             } catch (Exception e) {
-                throw new OrderServiceException("Stock reservation failed: " + e.getMessage());
+                throw new OrderServiceException("Stock reservation failed", e);
             }
         }
     }
@@ -39,7 +39,7 @@ public class InventoryService {
                 StockOperationRequestPayload request = new StockOperationRequestPayload(item.getQuantity());
                 productGateway.releaseReservedStock(item.getProductId(), request);
             } catch (Exception e) {
-                log.error("Failed to release stock for product {}: {}", item.getProductId(), e.getMessage());
+                log.error("Failed to release stock for product {}", item.getProductId(), e);
             }
         }
     }
@@ -50,8 +50,8 @@ public class InventoryService {
                 StockOperationRequestPayload request = new StockOperationRequestPayload(item.getQuantity());
                 productGateway.consumeStock(item.getProductId(), request);
             } catch (Exception e) {
-                log.error("Failed to consume stock for product {}: {}", item.getProductId(), e.getMessage());
-                throw new OrderServiceException("Stock consumption failed: " + e.getMessage());
+                log.error("Failed to consume stock for product {}", item.getProductId(), e);
+                throw new OrderServiceException("Stock consumption failed", e);
             }
         }
     }

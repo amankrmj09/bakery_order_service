@@ -136,7 +136,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
         "id": "123e4567-e89b-12d3-a456-426614174002",
         "orderNumber": "ORD-20260713-1234",
         "status": "PENDING"
-        // ... full OrderResponseDto
+        // ... full OrderResponse
       }
     ],
     "pageable": {
@@ -155,7 +155,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  *(Returns a single `OrderResponseDto`)*
+  *(Returns a single `OrderResponse`)*
 
 ### 4. Get Order by Order Number
 - **Method:** `GET`
@@ -163,7 +163,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  *(Returns a single `OrderResponseDto`)*
+  *(Returns a single `OrderResponse`)*
 
 ### 5. Get Orders by User ID
 - **Method:** `GET`
@@ -176,7 +176,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
     {
       "id": "123e4567-e89b-12d3-a456-426614174002",
       "orderNumber": "ORD-20260713-1234"
-      // ... full OrderResponseDto
+      // ... full OrderResponse
     }
   ]
   ```
@@ -187,7 +187,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  *(Returns a paginated response of `OrderResponseDto` objects)*
+  *(Returns a paginated response of `OrderResponse` objects)*
 
 ### 7. Get Orders by Status
 - **Method:** `GET`
@@ -195,7 +195,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 - **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  *(Returns a List of `OrderResponseDto` objects)*
+  *(Returns a List of `OrderResponse` objects)*
 
 ### 8. Search Orders
 - **Method:** `GET`
@@ -203,7 +203,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 - **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  *(Returns a List of `OrderResponseDto` objects)*
+  *(Returns a List of `OrderResponse` objects)*
 
 ### 9. Get Recent Orders
 - **Method:** `GET`
@@ -211,7 +211,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 - **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  *(Returns a List of `OrderResponseDto` objects)*
+  *(Returns a List of `OrderResponse` objects)*
 
 ### 10. Advanced Filter Search
 - **Method:** `GET`
@@ -219,7 +219,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 - **Type of API:** `Public`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  *(Returns a List of `OrderResponseDto` objects)*
+  *(Returns a List of `OrderResponse` objects)*
 
 ### 11. Update Order Status
 - **Method:** `PATCH`
@@ -234,7 +234,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
   }
   ```
 - **Response Body:** `200 OK`
-  *(Returns the updated `OrderResponseDto`)*
+  *(Returns the updated `OrderResponse`)*
 
 ### 12. Cancel Order
 - **Method:** `POST`
@@ -247,7 +247,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
   }
   ```
 - **Response Body:** `200 OK`
-  *(Returns the updated `OrderResponseDto` with status `CANCELLED`)*
+  *(Returns the updated `OrderResponse` with status `CANCELLED`)*
 
 ### 13. Get Order Statistics
 - **Method:** `GET`
@@ -286,3 +286,19 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
     "message": "Payment status updated"
   }
   ```
+
+### 15. Get Active Orders by User ID
+- **Method:** `GET`
+- **Path:** `/api/orders/user/{userId}/active`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  *(Returns a List of `OrderResponse` objects)*
+
+### 16. Admin Search Orders
+- **Method:** `GET`
+- **Path:** `/api/orders/admin/search`
+- **Type of API:** `Admin`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  *(Returns a List of `OrderResponse` objects)*
