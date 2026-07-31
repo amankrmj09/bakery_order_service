@@ -286,10 +286,15 @@ public class OrderServiceImpl implements OrderService {
     private void handleStatusTransition(Order order, OrderStatus oldStatus, OrderStatus newStatus, String reason) {
         LocalDateTime now = LocalDateTime.now();
 
-        if (oldStatus == OrderStatus.PENDING && 
-           (newStatus == OrderStatus.CONFIRMED || newStatus == OrderStatus.PREPARING || 
-            newStatus == OrderStatus.READY || newStatus == OrderStatus.OUT_FOR_DELIVERY)) {
+        boolean wasActive = (oldStatus == OrderStatus.CONFIRMED || oldStatus == OrderStatus.PREPARING || 
+                             oldStatus == OrderStatus.READY || oldStatus == OrderStatus.OUT_FOR_DELIVERY);
+        boolean isNowActive = (newStatus == OrderStatus.CONFIRMED || newStatus == OrderStatus.PREPARING || 
+                               newStatus == OrderStatus.READY || newStatus == OrderStatus.OUT_FOR_DELIVERY);
+
+        if (!wasActive && isNowActive) {
             statisticsGateway.incrementOrders();
+        } else if (wasActive && !isNowActive) {
+            statisticsGateway.decrementOrders();
         }
 
         switch (newStatus) {
@@ -318,7 +323,6 @@ public class OrderServiceImpl implements OrderService {
             }
             case DELIVERED -> {
                 order.setCompletedAt(now);
-                statisticsGateway.decrementOrders();
                 try {
                     statisticsGateway.addRevenue(new RevenuePayload(order.getTotalAmount()));
                 } catch (Exception e) {
@@ -328,9 +332,6 @@ public class OrderServiceImpl implements OrderService {
             case CANCELLED -> {
                 order.setCancelledAt(now);
                 order.setCancellationReason(reason);
-                if (oldStatus == OrderStatus.CONFIRMED || oldStatus == OrderStatus.PREPARING || oldStatus == OrderStatus.READY || oldStatus == OrderStatus.OUT_FOR_DELIVERY) {
-                    statisticsGateway.decrementOrders();
-                }
             }
         }
     }
