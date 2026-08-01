@@ -2,7 +2,7 @@ package com.blubugtech.bakery_order_service.integration.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.blubakery.common.messaging.event.PaymentEvent;
-import com.blubugtech.bakery_order_service.service.OrderService;
+import com.blubugtech.bakery_order_service.service.OrderCommandService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import java.util.Map;
@@ -11,9 +11,9 @@ import java.util.HashMap;
 @Service
 @Slf4j
 public class PaymentEventConsumer {
-    private final OrderService orderService;
+    private final OrderCommandService orderService;
 
-    public PaymentEventConsumer(OrderService orderService) {
+    public PaymentEventConsumer(OrderCommandService orderService) {
         this.orderService = orderService;
     }
 

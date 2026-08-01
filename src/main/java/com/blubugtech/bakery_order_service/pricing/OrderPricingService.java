@@ -2,11 +2,13 @@ package com.blubugtech.bakery_order_service.pricing;
 
 import com.blubugtech.bakery_order_service.entity.Order;
 import com.blubugtech.bakery_order_service.enums.DeliveryType;
+import com.blubugtech.bakery_order_service.pricing.strategy.DeliveryPricingStrategy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class OrderPricingService {
@@ -14,12 +16,27 @@ public class OrderPricingService {
     @Value("${order.delivery.default-time-minutes:60}")
     private Integer defaultDeliveryTimeMinutes;
 
+    private final List<DeliveryPricingStrategy> pricingStrategies;
+    private final List<com.blubugtech.bakery_order_service.pricing.strategy.OrderCalculationStrategy> calculationStrategies;
+
+    public OrderPricingService(List<DeliveryPricingStrategy> pricingStrategies,
+                               List<com.blubugtech.bakery_order_service.pricing.strategy.OrderCalculationStrategy> calculationStrategies) {
+        this.pricingStrategies = pricingStrategies;
+        this.calculationStrategies = calculationStrategies;
+    }
+
     public void applyPricingAndTiming(Order order, String discountCode) {
         calculatePreparationTime(order);
         applyDiscounts(order, discountCode);
-        order.calculateTotals();
         setDeliveryFee(order);
-        order.calculateTotals();
+        
+        calculationStrategies.stream()
+                .filter(strategy -> strategy.supports(order.getDeliveryType()))
+                .findFirst()
+                .ifPresentOrElse(
+                        strategy -> strategy.calculateTotals(order),
+                        () -> order.calculateTotals() // Fallback just in case
+                );
     }
 
     private void calculatePreparationTime(Order order) {
@@ -40,10 +57,12 @@ public class OrderPricingService {
     }
 
     private void setDeliveryFee(Order order) {
-        if (DeliveryType.DELIVERY.equals(order.getDeliveryType())) {
-            order.setDeliveryFee(new BigDecimal("5.00")); // Fixed delivery fee for now
-        } else {
-            order.setDeliveryFee(BigDecimal.ZERO);
-        }
+        BigDecimal fee = pricingStrategies.stream()
+                .filter(strategy -> strategy.supports(order.getDeliveryType()))
+                .findFirst()
+                .map(strategy -> strategy.calculateFee(order))
+                .orElse(BigDecimal.ZERO);
+        
+        order.setDeliveryFee(fee);
     }
 }
