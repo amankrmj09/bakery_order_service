@@ -29,7 +29,8 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
             "ORDER_SERVICE_ERROR",
             ex.getMessage(),
             LocalDateTime.now(),
-            request.getDescription(false)
+            request.getDescription(false),
+            null, null, null
         );
 
         return ResponseEntity.badRequest().body(error);
@@ -46,22 +47,22 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleOrderNotFoundException(OrderNotFoundException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("ORDER_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+        ErrorResponse error = new ErrorResponse("ORDER_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false), null, null, null);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleProductNotFoundException(ProductNotFoundException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("PRODUCT_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+        ErrorResponse error = new ErrorResponse("PRODUCT_NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false), null, null, null);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
     @ExceptionHandler(InvalidOrderStatusException.class)
     public ResponseEntity<ErrorResponse> handleInvalidOrderStatusException(InvalidOrderStatusException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("INVALID_ORDER_STATUS", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+        ErrorResponse error = new ErrorResponse("INVALID_ORDER_STATUS", ex.getMessage(), LocalDateTime.now(), request.getDescription(false), null, null, null);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
     @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<ErrorResponse> handleInsufficientStockException(InsufficientStockException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse("INSUFFICIENT_STOCK", ex.getMessage(), LocalDateTime.now(), request.getDescription(false));
+        ErrorResponse error = new ErrorResponse("INSUFFICIENT_STOCK", ex.getMessage(), LocalDateTime.now(), request.getDescription(false), null, null, null);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
