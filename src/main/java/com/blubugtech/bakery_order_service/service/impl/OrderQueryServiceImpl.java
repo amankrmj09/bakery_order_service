@@ -11,6 +11,7 @@ import com.blubugtech.bakery_order_service.service.OrderQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,53 +44,60 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public List<OrderResponse> getOrdersByUserId(UUID userId) {
-        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(orderMapper::toResponse).collect(Collectors.toList());
+    public PagedModel<OrderResponse> getOrdersByUserId(UUID userId, Pageable pageable) {
+        Page<OrderResponse> page = orderRepository.findByUserId(userId, pageable).map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 
     @Override
-    public List<OrderResponse> getActiveOrdersByUserId(UUID userId) {
+    public PagedModel<OrderResponse> getActiveOrdersByUserId(UUID userId, Pageable pageable) {
         List<OrderStatus> activeStatuses = Arrays.asList(
                 OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING,
                 OrderStatus.READY, OrderStatus.OUT_FOR_DELIVERY
         );
-        return orderRepository.findByUserIdAndStatusIn(userId, activeStatuses).stream()
-                .map(orderMapper::toResponse).collect(Collectors.toList());
+        Page<OrderResponse> page = orderRepository.findByUserIdAndStatusIn(userId, activeStatuses, pageable)
+                .map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 
     @Override
-    public Page<OrderResponse> getOrdersByUserIdWithPagination(UUID userId, Pageable pageable) {
-        return orderRepository.findByUserId(userId, pageable).map(orderMapper::toResponse);
+    public PagedModel<OrderResponse> getOrdersByUserIdWithPagination(UUID userId, Pageable pageable) {
+        Page<OrderResponse> page = orderRepository.findByUserId(userId, pageable).map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 
     @Override
-    public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
-        return orderRepository.findByStatusOrderByCreatedAtDesc(status).stream()
-                .map(orderMapper::toResponse).collect(Collectors.toList());
+    public PagedModel<OrderResponse> getOrdersByStatus(OrderStatus status, Pageable pageable) {
+        Page<OrderResponse> page = orderRepository.findByStatus(status, pageable)
+                .map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 
     @Override
-    public Page<OrderResponse> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable).map(orderMapper::toResponse);
+    public PagedModel<OrderResponse> getAllOrders(Pageable pageable) {
+        Page<OrderResponse> page = orderRepository.findAll(pageable).map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 
     @Override
-    public List<OrderResponse> getRecentOrders(int days) {
+    public PagedModel<OrderResponse> getRecentOrders(int days, Pageable pageable) {
         LocalDateTime sinceDate = LocalDateTime.now().minusDays(days);
-        return orderRepository.findRecentOrders(sinceDate).stream()
-                .map(orderMapper::toResponse).collect(Collectors.toList());
+        Page<OrderResponse> page = orderRepository.findRecentOrders(sinceDate, pageable)
+                .map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 
     @Override
-    public List<OrderResponse> searchOrders(String searchTerm) {
-        return orderRepository.searchByCustomerInfo(searchTerm).stream()
-                .map(orderMapper::toResponse).collect(Collectors.toList());
+    public PagedModel<OrderResponse> searchOrders(String searchTerm, Pageable pageable) {
+        Page<OrderResponse> page = orderRepository.searchByCustomerInfo(searchTerm, pageable)
+                .map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 
     @Override
-    public List<OrderResponse> getOrdersWithFilters(UUID userId, OrderStatus status, DeliveryType deliveryType, String paymentMethod, BigDecimal minAmount, BigDecimal maxAmount, LocalDateTime startDate, LocalDateTime endDate) {
-        return orderRepository.findOrdersWithFilters(userId, status, deliveryType, null, minAmount, maxAmount, startDate, endDate).stream()
-                .map(orderMapper::toResponse).collect(Collectors.toList());
+    public PagedModel<OrderResponse> getOrdersWithFilters(UUID userId, OrderStatus status, DeliveryType deliveryType, String paymentMethod, BigDecimal minAmount, BigDecimal maxAmount, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        Page<OrderResponse> page = orderRepository.findOrdersWithFilters(userId, status, deliveryType, null, minAmount, maxAmount, startDate, endDate, pageable)
+                .map(orderMapper::toResponse);
+        return new PagedModel<>(page);
     }
 }

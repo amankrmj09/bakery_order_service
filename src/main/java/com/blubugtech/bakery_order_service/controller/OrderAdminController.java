@@ -52,19 +52,29 @@ public class OrderAdminController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<OrderResponse> orders = orderQueryService.getAllOrders(pageable);
+        PagedModel<OrderResponse> orders = orderQueryService.getAllOrders(pageable);
 
-        log.info("Retrieved {} orders (page {} of {})", orders.getContent().size(),
-                page + 1, orders.getTotalPages());
-        return ResponseEntity.ok(new PagedModel<>(orders));
+        log.info("Retrieved orders for admin");
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/admin/search")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<OrderResponse>> searchOrdersAdmin(@RequestParam String query) {
+    public ResponseEntity<PagedModel<OrderResponse>> searchOrdersAdmin(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+            
         log.info("Admin search orders request received with query: {}", query);
-        List<OrderResponse> orders = orderQueryService.searchOrders(query);
-        log.info("Admin search returned {} orders", orders.size());
+        
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        PagedModel<OrderResponse> orders = orderQueryService.searchOrders(query, pageable);
+        
+        log.info("Admin search returned orders");
         return ResponseEntity.ok(orders);
     }
 
@@ -91,7 +101,7 @@ public class OrderAdminController {
 
     @GetMapping("/statistics")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> getOrderStatistics(
+    public ResponseEntity<com.blubugtech.bakery_order_service.dto.OrderStatisticsResponse> getOrderStatistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
@@ -104,7 +114,7 @@ public class OrderAdminController {
             endDate = LocalDateTime.now();
         }
 
-        Map<String, Object> statistics = orderAnalyticsService.getOrderStatistics(startDate, endDate);
+        com.blubugtech.bakery_order_service.dto.OrderStatisticsResponse statistics = orderAnalyticsService.getOrderStatistics(startDate, endDate);
 
         log.info("Order statistics retrieved");
         return ResponseEntity.ok(statistics);

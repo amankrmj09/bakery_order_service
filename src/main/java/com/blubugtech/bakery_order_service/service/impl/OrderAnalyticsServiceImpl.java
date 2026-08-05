@@ -21,7 +21,7 @@ public class OrderAnalyticsServiceImpl implements OrderAnalyticsService {
     private final OrderRepository orderRepository;
 
     @Override
-    public Map<String, Object> getOrderStatistics(LocalDateTime startDate, LocalDateTime endDate) {
+    public com.blubugtech.bakery_order_service.dto.OrderStatisticsResponse getOrderStatistics(LocalDateTime startDate, LocalDateTime endDate) {
         long totalOrders = orderRepository.countByCreatedAtBetween(startDate, endDate);
         long pendingOrders = orderRepository.countByStatusAndCreatedAtBetween(OrderStatus.PENDING, startDate, endDate);
         long completedOrders = orderRepository.countByStatusAndCreatedAtBetween(OrderStatus.DELIVERED, startDate, endDate);
@@ -37,14 +37,17 @@ public class OrderAnalyticsServiceImpl implements OrderAnalyticsService {
                 totalRevenue.divide(BigDecimal.valueOf(totalOrders), 2, java.math.RoundingMode.HALF_UP) :
                 BigDecimal.ZERO;
 
-        return Map.of(
-                "totalOrders", totalOrders,
-                "totalRevenue", totalRevenue,
-                "averageOrderValue", averageOrderValue,
-                "pendingOrders", pendingOrders,
-                "completedOrders", completedOrders,
-                "cancelledOrders", cancelledOrders,
-                "dateRange", Map.of("startDate", startDate.toString(), "endDate", endDate.toString())
-        );
+        return com.blubugtech.bakery_order_service.dto.OrderStatisticsResponse.builder()
+                .totalOrders(totalOrders)
+                .totalRevenue(totalRevenue)
+                .averageOrderValue(averageOrderValue)
+                .pendingOrders(pendingOrders)
+                .completedOrders(completedOrders)
+                .cancelledOrders(cancelledOrders)
+                .dateRange(com.blubugtech.bakery_order_service.dto.DateRangeResponse.builder()
+                        .startDate(startDate.toString())
+                        .endDate(endDate.toString())
+                        .build())
+                .build();
     }
 }

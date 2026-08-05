@@ -4,5 +4,5 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 public interface OrderAnalyticsService {
-    Map<String, Object> getOrderStatistics(LocalDateTime startDate, LocalDateTime endDate);
+    com.blubugtech.bakery_order_service.dto.OrderStatisticsResponse getOrderStatistics(LocalDateTime startDate, LocalDateTime endDate);
 }

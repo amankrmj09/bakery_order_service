@@ -60,26 +60,38 @@ public class OrderQueryController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByUserId(
-            @PathVariable UUID userId) {
+    public ResponseEntity<PagedModel<OrderResponse>> getOrdersByUserId(
+            @PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
 
         log.info("Get orders by user ID request received: {}", userId);
 
-        List<OrderResponse> orders = orderQueryService.getOrdersByUserId(userId);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} orders for user", orders.size());
+        PagedModel<OrderResponse> orders = orderQueryService.getOrdersByUserId(userId, pageable);
+
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/user/{userId}/active")
-    public ResponseEntity<List<OrderResponse>> getActiveOrdersByUserId(
-            @PathVariable UUID userId) {
+    public ResponseEntity<PagedModel<OrderResponse>> getActiveOrdersByUserId(
+            @PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
 
         log.info("Get active orders by user ID request received: {}", userId);
 
-        List<OrderResponse> orders = orderQueryService.getActiveOrdersByUserId(userId);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} active orders for user", orders.size());
+        PagedModel<OrderResponse> orders = orderQueryService.getActiveOrdersByUserId(userId, pageable);
+
         return ResponseEntity.ok(orders);
     }
 
@@ -96,48 +108,67 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<OrderResponse> orders = orderQueryService.getOrdersByUserIdWithPagination(userId, pageable);
+        PagedModel<OrderResponse> orders = orderQueryService.getOrdersByUserIdWithPagination(userId, pageable);
 
-        log.info("Retrieved {} orders for user (page {} of {})", orders.getContent().size(),
-                page + 1, orders.getTotalPages());
-        return ResponseEntity.ok(new PagedModel<>(orders));
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByStatus(
-            @PathVariable OrderStatus status) {
+    public ResponseEntity<PagedModel<OrderResponse>> getOrdersByStatus(
+            @PathVariable OrderStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
 
         log.info("Get orders by status request received: {}", status);
 
-        List<OrderResponse> orders = orderQueryService.getOrdersByStatus(status);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} orders with status {}", orders.size(), status);
+        PagedModel<OrderResponse> orders = orderQueryService.getOrdersByStatus(status, pageable);
+
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<OrderResponse>> searchOrders(@RequestParam String query) {
+    public ResponseEntity<PagedModel<OrderResponse>> searchOrders(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+            
         log.info("Search orders request received with query: {}", query);
 
-        List<OrderResponse> orders = orderQueryService.searchOrders(query);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        log.info("Search returned {} orders", orders.size());
+        PagedModel<OrderResponse> orders = orderQueryService.searchOrders(query, pageable);
+
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<List<OrderResponse>> getRecentOrders(
-            @RequestParam(defaultValue = "7") int days) {
+    public ResponseEntity<PagedModel<OrderResponse>> getRecentOrders(
+            @RequestParam(defaultValue = "7") int days,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+            
         log.info("Get recent orders request received (last {} days)", days);
 
-        List<OrderResponse> orders = orderQueryService.getRecentOrders(days);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} recent orders", orders.size());
+        PagedModel<OrderResponse> orders = orderQueryService.getRecentOrders(days, pageable);
+
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<OrderResponse>> getOrdersWithFilters(
+    public ResponseEntity<PagedModel<OrderResponse>> getOrdersWithFilters(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(required = false) DeliveryType deliveryType,
@@ -145,14 +176,20 @@ public class OrderQueryController {
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
 
         log.info("Advanced filter search request received");
 
-        List<OrderResponse> orders = orderQueryService.getOrdersWithFilters(
-                userId, status, deliveryType, paymentMethod, minAmount, maxAmount, startDate, endDate);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        log.info("Filter search returned {} orders", orders.size());
+        PagedModel<OrderResponse> orders = orderQueryService.getOrdersWithFilters(
+                userId, status, deliveryType, paymentMethod, minAmount, maxAmount, startDate, endDate, pageable);
+
         return ResponseEntity.ok(orders);
     }
 }

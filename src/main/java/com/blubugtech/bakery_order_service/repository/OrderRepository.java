@@ -75,13 +75,13 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     // Find orders by user and multiple statuses
     @EntityGraph(attributePaths = {"orderItems"})
-    @Query("SELECT o FROM Order o WHERE o.userId = :userId AND o.status IN :statuses ORDER BY o.createdAt DESC")
-    List<Order> findByUserIdAndStatusIn(@Param("userId") UUID userId, @Param("statuses") List<OrderStatus> statuses);
+    @Query("SELECT o FROM Order o WHERE o.userId = :userId AND o.status IN :statuses")
+    Page<Order> findByUserIdAndStatusIn(@Param("userId") UUID userId, @Param("statuses") List<OrderStatus> statuses, Pageable pageable);
 
     // Find recent orders (last N days)
     @EntityGraph(attributePaths = {"orderItems"})
-    @Query("SELECT o FROM Order o WHERE o.createdAt >= :sinceDate ORDER BY o.createdAt DESC")
-    List<Order> findRecentOrders(@Param("sinceDate") LocalDateTime sinceDate);
+    @Query("SELECT o FROM Order o WHERE o.createdAt >= :sinceDate")
+    Page<Order> findRecentOrders(@Param("sinceDate") LocalDateTime sinceDate, Pageable pageable);
 
     // Find orders pending confirmation (older than X minutes)
     @EntityGraph(attributePaths = {"orderItems"})
@@ -108,9 +108,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT o FROM Order o " +
             "WHERE LOWER(o.customerName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(o.customerEmail) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "ORDER BY o.createdAt DESC")
-    List<Order> searchByCustomerInfo(@Param("searchTerm") String searchTerm);
+            "OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    Page<Order> searchByCustomerInfo(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     // ✅ REMOVED: Payment method queries (now handled by Payment Service)
     // These methods are removed since Payment entity is no longer in Order Service:
@@ -229,14 +228,14 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             "AND (:minAmount IS NULL OR o.totalAmount >= :minAmount) " +
             "AND (:maxAmount IS NULL OR o.totalAmount <= :maxAmount) " +
             "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
-            "AND (:endDate IS NULL OR o.createdAt <= :endDate) " +
-            "ORDER BY o.createdAt DESC")
-    List<Order> findOrdersWithFilters(@Param("userId") UUID userId,
+            "AND (:endDate IS NULL OR o.createdAt <= :endDate)")
+    Page<Order> findOrdersWithFilters(@Param("userId") UUID userId,
                                       @Param("status") OrderStatus status,
                                       @Param("deliveryType") DeliveryType deliveryType,
                                       @Param("paymentMethod") Object paymentMethod, // Ignored parameter (kept for compatibility)
                                       @Param("minAmount") BigDecimal minAmount,
                                       @Param("maxAmount") BigDecimal maxAmount,
                                       @Param("startDate") LocalDateTime startDate,
-                                      @Param("endDate") LocalDateTime endDate);
+                                      @Param("endDate") LocalDateTime endDate,
+                                      Pageable pageable);
 }
