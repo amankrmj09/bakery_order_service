@@ -38,5 +38,6 @@ src
 For complete API documentation with endpoints and examples, please refer to [API_REFERENCE.md](./API_REFERENCE.md).
 
 ## 🔗 Related Links
-- [Parent Repository](https://github.com/amankrmj09/Blu_s_Bakery)
-- [API Reference](./API_REFERENCE.md)
+
+*For overall architecture, contribution guidelines, and security policies, please refer to the main [Blu's Bakery](https://github.com/amankrmj09/Blu_s_Bakery) repository.*
+
