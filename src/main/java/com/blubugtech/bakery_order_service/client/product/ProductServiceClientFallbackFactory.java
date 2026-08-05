@@ -3,8 +3,8 @@ package com.blubugtech.bakery_order_service.client.product;
 import lombok.extern.slf4j.Slf4j;
 import org.blubakery.common.feign.contract.feign.Product;
 import org.blubakery.common.feign.contract.feign.StockAvailability;
-import org.blubakery.common.messaging.contract.messaging.StockOperationRequestPayload;
-import org.blubakery.common.messaging.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.common.messaging.stock.StockOperationRequestPayload;
+import org.blubakery.common.messaging.stock.StockOperationResponsePayload;
 
 import org.blubakery.common.feign.exception.common.FeignClientException;
 import org.blubakery.common.core.exception.common.ServiceUnavailableException;

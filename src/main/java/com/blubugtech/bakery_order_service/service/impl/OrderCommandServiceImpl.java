@@ -111,7 +111,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         } else if (request.getStatus() == OrderStatus.DELIVERED) {
             order.setCompletedAt(LocalDateTime.now());
             try {
-                statisticsGateway.addRevenue(new org.blubakery.common.messaging.contract.messaging.RevenuePayload(order.getTotalAmount()));
+                statisticsGateway.addRevenue(new org.blubakery.common.messaging.revenue.RevenuePayload(order.getTotalAmount()));
             } catch (Exception e) {
                 log.error("Failed to update central dashboard revenue", e);
             }

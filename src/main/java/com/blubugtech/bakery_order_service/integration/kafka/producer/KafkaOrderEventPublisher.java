@@ -1,8 +1,8 @@
 package com.blubugtech.bakery_order_service.integration.kafka.producer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.blubakery.common.messaging.event.OrderEvent;
-import org.blubakery.common.messaging.contract.messaging.OrderPayload;
+import org.blubakery.common.messaging.order.OrderEvent;
+import org.blubakery.common.messaging.order.OrderPayload;
 import com.blubugtech.bakery_order_service.entity.Order;
 import com.blubugtech.bakery_order_service.enums.OrderStatus;
 import org.springframework.kafka.core.KafkaTemplate;

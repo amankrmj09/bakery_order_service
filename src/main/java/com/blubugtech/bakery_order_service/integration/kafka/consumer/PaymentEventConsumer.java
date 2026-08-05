@@ -1,7 +1,7 @@
 package com.blubugtech.bakery_order_service.integration.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.blubakery.common.messaging.event.PaymentEvent;
+import org.blubakery.common.messaging.payment.PaymentEvent;
 import com.blubugtech.bakery_order_service.service.OrderCommandService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;

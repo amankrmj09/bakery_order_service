@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.*;
 
 import org.blubakery.common.feign.contract.feign.Product;
 import org.blubakery.common.feign.contract.feign.StockAvailability;
-import org.blubakery.common.messaging.contract.messaging.StockOperationRequestPayload;
-import org.blubakery.common.messaging.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.common.messaging.stock.StockOperationRequestPayload;
+import org.blubakery.common.messaging.stock.StockOperationResponsePayload;
 import java.util.UUID;
 
 @FeignClient(name = "bakery-product-service", path = "/api", fallbackFactory = ProductServiceClientFallbackFactory.class)

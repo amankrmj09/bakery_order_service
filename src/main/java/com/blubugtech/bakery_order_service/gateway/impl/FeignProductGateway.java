@@ -4,8 +4,8 @@ import com.blubugtech.bakery_order_service.client.product.ProductServiceClient;
 import com.blubugtech.bakery_order_service.gateway.ProductGateway;
 import org.blubakery.common.feign.contract.feign.Product;
 import org.blubakery.common.feign.contract.feign.StockAvailability;
-import org.blubakery.common.messaging.contract.messaging.StockOperationRequestPayload;
-import org.blubakery.common.messaging.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.common.messaging.stock.StockOperationRequestPayload;
+import org.blubakery.common.messaging.stock.StockOperationResponsePayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

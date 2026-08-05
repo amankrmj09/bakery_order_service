@@ -3,7 +3,7 @@ package com.blubugtech.bakery_order_service.client.statistics;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.blubakery.common.messaging.contract.messaging.RevenuePayload;
+import org.blubakery.common.messaging.revenue.RevenuePayload;
 
 @FeignClient(name = "bakery-auth-service", contextId = "internalStatsClient", path = "/api/users/internal/stats", fallbackFactory = InternalStatsClientFallbackFactory.class)
 public interface InternalStatsClient {
