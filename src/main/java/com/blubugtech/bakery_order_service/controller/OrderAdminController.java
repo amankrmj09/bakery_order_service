@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PagedModel;
+import org.blubakery.common.core.dto.RestPageResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +41,7 @@ public class OrderAdminController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PagedModel<OrderResponse>> getAllOrders(
+    public ResponseEntity<RestPageResponse<OrderResponse>> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -52,7 +52,7 @@ public class OrderAdminController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.getAllOrders(pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.getAllOrders(pageable);
 
         log.info("Retrieved orders for admin");
         return ResponseEntity.ok(orders);
@@ -60,7 +60,7 @@ public class OrderAdminController {
 
     @GetMapping("/admin/search")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PagedModel<OrderResponse>> searchOrdersAdmin(
+    public ResponseEntity<RestPageResponse<OrderResponse>> searchOrdersAdmin(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -72,7 +72,7 @@ public class OrderAdminController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
         
-        PagedModel<OrderResponse> orders = orderQueryService.searchOrders(query, pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.searchOrders(query, pageable);
         
         log.info("Admin search returned orders");
         return ResponseEntity.ok(orders);

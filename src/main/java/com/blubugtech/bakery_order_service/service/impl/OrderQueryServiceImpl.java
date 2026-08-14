@@ -11,7 +11,7 @@ import com.blubugtech.bakery_order_service.service.OrderQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
+import org.blubakery.common.core.dto.RestPageResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,60 +44,60 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public PagedModel<OrderResponse> getOrdersByUserId(UUID userId, Pageable pageable) {
+    public RestPageResponse<OrderResponse> getOrdersByUserId(UUID userId, Pageable pageable) {
         Page<OrderResponse> page = orderRepository.findByUserId(userId, pageable).map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 
     @Override
-    public PagedModel<OrderResponse> getActiveOrdersByUserId(UUID userId, Pageable pageable) {
+    public RestPageResponse<OrderResponse> getActiveOrdersByUserId(UUID userId, Pageable pageable) {
         List<OrderStatus> activeStatuses = Arrays.asList(
                 OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING,
                 OrderStatus.READY, OrderStatus.OUT_FOR_DELIVERY
         );
         Page<OrderResponse> page = orderRepository.findByUserIdAndStatusIn(userId, activeStatuses, pageable)
                 .map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 
     @Override
-    public PagedModel<OrderResponse> getOrdersByUserIdWithPagination(UUID userId, Pageable pageable) {
+    public RestPageResponse<OrderResponse> getOrdersByUserIdWithPagination(UUID userId, Pageable pageable) {
         Page<OrderResponse> page = orderRepository.findByUserId(userId, pageable).map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 
     @Override
-    public PagedModel<OrderResponse> getOrdersByStatus(OrderStatus status, Pageable pageable) {
+    public RestPageResponse<OrderResponse> getOrdersByStatus(OrderStatus status, Pageable pageable) {
         Page<OrderResponse> page = orderRepository.findByStatus(status, pageable)
                 .map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 
     @Override
-    public PagedModel<OrderResponse> getAllOrders(Pageable pageable) {
+    public RestPageResponse<OrderResponse> getAllOrders(Pageable pageable) {
         Page<OrderResponse> page = orderRepository.findAll(pageable).map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 
     @Override
-    public PagedModel<OrderResponse> getRecentOrders(int days, Pageable pageable) {
+    public RestPageResponse<OrderResponse> getRecentOrders(int days, Pageable pageable) {
         LocalDateTime sinceDate = LocalDateTime.now().minusDays(days);
         Page<OrderResponse> page = orderRepository.findRecentOrders(sinceDate, pageable)
                 .map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 
     @Override
-    public PagedModel<OrderResponse> searchOrders(String searchTerm, Pageable pageable) {
+    public RestPageResponse<OrderResponse> searchOrders(String searchTerm, Pageable pageable) {
         Page<OrderResponse> page = orderRepository.searchByCustomerInfo(searchTerm, pageable)
                 .map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 
     @Override
-    public PagedModel<OrderResponse> getOrdersWithFilters(UUID userId, OrderStatus status, DeliveryType deliveryType, String paymentMethod, BigDecimal minAmount, BigDecimal maxAmount, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    public RestPageResponse<OrderResponse> getOrdersWithFilters(UUID userId, OrderStatus status, DeliveryType deliveryType, String paymentMethod, BigDecimal minAmount, BigDecimal maxAmount, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<OrderResponse> page = orderRepository.findOrdersWithFilters(userId, status, deliveryType, null, minAmount, maxAmount, startDate, endDate, pageable)
                 .map(orderMapper::toResponse);
-        return new PagedModel<>(page);
+        return new RestPageResponse<>(page);
     }
 }

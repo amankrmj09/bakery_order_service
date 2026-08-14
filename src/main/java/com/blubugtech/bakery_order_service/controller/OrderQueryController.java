@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PagedModel;
+import org.blubakery.common.core.dto.RestPageResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,7 +60,7 @@ public class OrderQueryController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<PagedModel<OrderResponse>> getOrdersByUserId(
+    public ResponseEntity<RestPageResponse<OrderResponse>> getOrdersByUserId(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -72,13 +72,13 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.getOrdersByUserId(userId, pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.getOrdersByUserId(userId, pageable);
 
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/user/{userId}/active")
-    public ResponseEntity<PagedModel<OrderResponse>> getActiveOrdersByUserId(
+    public ResponseEntity<RestPageResponse<OrderResponse>> getActiveOrdersByUserId(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -90,13 +90,13 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.getActiveOrdersByUserId(userId, pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.getActiveOrdersByUserId(userId, pageable);
 
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/user/{userId}/paginated")
-    public ResponseEntity<PagedModel<OrderResponse>> getOrdersByUserIdWithPagination(
+    public ResponseEntity<RestPageResponse<OrderResponse>> getOrdersByUserIdWithPagination(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -108,13 +108,13 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.getOrdersByUserIdWithPagination(userId, pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.getOrdersByUserIdWithPagination(userId, pageable);
 
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<PagedModel<OrderResponse>> getOrdersByStatus(
+    public ResponseEntity<RestPageResponse<OrderResponse>> getOrdersByStatus(
             @PathVariable OrderStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -126,13 +126,13 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.getOrdersByStatus(status, pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.getOrdersByStatus(status, pageable);
 
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PagedModel<OrderResponse>> searchOrders(
+    public ResponseEntity<RestPageResponse<OrderResponse>> searchOrders(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -144,13 +144,13 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.searchOrders(query, pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.searchOrders(query, pageable);
 
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<PagedModel<OrderResponse>> getRecentOrders(
+    public ResponseEntity<RestPageResponse<OrderResponse>> getRecentOrders(
             @RequestParam(defaultValue = "7") int days,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -162,13 +162,13 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.getRecentOrders(days, pageable);
+        RestPageResponse<OrderResponse> orders = orderQueryService.getRecentOrders(days, pageable);
 
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<PagedModel<OrderResponse>> getOrdersWithFilters(
+    public ResponseEntity<RestPageResponse<OrderResponse>> getOrdersWithFilters(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(required = false) DeliveryType deliveryType,
@@ -187,7 +187,7 @@ public class OrderQueryController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        PagedModel<OrderResponse> orders = orderQueryService.getOrdersWithFilters(
+        RestPageResponse<OrderResponse> orders = orderQueryService.getOrdersWithFilters(
                 userId, status, deliveryType, paymentMethod, minAmount, maxAmount, startDate, endDate, pageable);
 
         return ResponseEntity.ok(orders);
