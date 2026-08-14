@@ -94,7 +94,6 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0.Beta1")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
     // runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     // 9. Testing
