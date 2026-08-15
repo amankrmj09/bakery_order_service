@@ -16,6 +16,6 @@ public class StandardDeliveryPricingStrategy implements DeliveryPricingStrategy 
 
     @Override
     public BigDecimal calculateFee(Order order) {
-        return new BigDecimal("5.00"); // Fixed delivery fee for now
+        return new BigDecimal("50.00"); // Fixed delivery fee for now
     }
 }
