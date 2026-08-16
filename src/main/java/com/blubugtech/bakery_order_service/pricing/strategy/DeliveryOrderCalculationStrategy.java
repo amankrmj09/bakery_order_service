@@ -23,20 +23,21 @@ public class DeliveryOrderCalculationStrategy implements OrderCalculationStrateg
 
         order.setSubtotal(subtotal);
 
-        // For delivery, tax might be 8% tax.
-        BigDecimal tax = subtotal.multiply(BigDecimal.valueOf(0.08)).setScale(2, java.math.RoundingMode.HALF_UP);
+        // Use the tax already provided by the cart service (product-level tax rates),
+        // NOT a hardcoded flat rate — this ensures paymentAmount validation passes.
+        BigDecimal tax = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
         order.setTaxAmount(tax);
-        
-        // Delivery fee is assumed to be calculated elsewhere and set on the order (like OrderPricingService)
+
+        // Delivery fee is calculated by OrderPricingService and already set on the order
         BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
 
         BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
         BigDecimal total = subtotal.add(tax).add(deliveryFee).subtract(discount);
-        
+
         if (total.compareTo(BigDecimal.ZERO) < 0) {
             total = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
         }
-        
+
         order.setTotalAmount(total);
     }
 }

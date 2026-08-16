@@ -23,20 +23,21 @@ public class PickupOrderCalculationStrategy implements OrderCalculationStrategy 
 
         order.setSubtotal(subtotal);
 
-        // For pickup, tax might be a fixed percentage. Assuming 5% tax.
-        BigDecimal tax = subtotal.multiply(BigDecimal.valueOf(0.05)).setScale(2, java.math.RoundingMode.HALF_UP);
+        // Use the tax already provided by the cart service (product-level tax rates),
+        // NOT a hardcoded flat rate — this ensures paymentAmount validation passes.
+        BigDecimal tax = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
         order.setTaxAmount(tax);
-        
-        // No delivery fee
+
+        // No delivery fee for pickup
         order.setDeliveryFee(BigDecimal.ZERO);
 
         BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
         BigDecimal total = subtotal.add(tax).subtract(discount);
-        
+
         if (total.compareTo(BigDecimal.ZERO) < 0) {
             total = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
         }
-        
+
         order.setTotalAmount(total);
     }
 }
